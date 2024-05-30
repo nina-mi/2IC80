@@ -4,7 +4,6 @@ import time
 import sys
 import scapy.all as scapy
 import os
-import argparse
 
 # MAC address function which will return
 # the mac_address of the provided ip address
@@ -38,7 +37,7 @@ def arp_spoof(target_ip, spoof_ip):
     scapy.send(packet, verbose=False)
  
 
-def arp_main():
+def arp_main(silent, manual):
     # TOADD: 
     # - arguments: silent/allin, autoscan/manualinput, dns things, input for all addresses
     # - threads

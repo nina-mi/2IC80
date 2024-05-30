@@ -13,4 +13,5 @@ To start interacting with the SpoofToolCLI, you need to run this in terminal:
 python SpoofToolCLI.py
 ```
 
-The the individual commands (which you can see if you use "help" command) can be used with arguments.
+To see all commands, type ```help``` once the CLI is running.
+Typing ```<command> -h``` shows the usage of the command.

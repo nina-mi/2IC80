@@ -11,7 +11,8 @@ class SpoofToolCLI(cmd.Cmd):
     intro = '\nWelcome to SpoofToolCLI. Type "help" for available commands.'
 
     def __init__(self):
-        super().__init__()
+        #super(SpoofToolCLI, self).__init__()
+        cmd.Cmd.__init__(self)
         self.current_directory = os.getcwd()
 
     # example of a command
@@ -27,6 +28,7 @@ class SpoofToolCLI(cmd.Cmd):
         parser = argparse.ArgumentParser(prog='arp_spoof', description='Spoof ARP packets')
         parser.add_argument('-s', '--silent', action='store_true', help='Silent mode (no active scanning for IP addresses)')
         parser.add_argument('-m', '--manual', nargs='*', help='Manual input of IP addresses')
+        parser.add_argument('-r', '--router', help='Gateway Router of the network')
 
         try:
             args = parser.parse_args(line.split())
@@ -37,10 +39,11 @@ class SpoofToolCLI(cmd.Cmd):
         if args.silent:
             print("Silent mode enabled.")
         if args.manual:
-            print(f"Manual IP addresses: {', '.join(args.manual)}.")
-
+            print("Manual IP addresses: {}.".format(', '.join(args.manual)))
+        if args.router:
+            print("Gateway Router: {}.".format(args.router))
         # Call the arp_main function with the parsed arguments
-        arp_main(silent=args.silent, manual=args.manual)
+        arp_main(silent=args.silent, manual=args.manual, router=args.router)
 
     def do_dns_spoof(self, line):
         """Spoof DNS packets."""
@@ -78,7 +81,7 @@ class SpoofToolCLI(cmd.Cmd):
                 if func:
                     print(func.__doc__)
             except AttributeError:
-                print(f"No help available for '{arg}'")
+                print("No help available for '{}'".format(arg))
         else:
             self.print_custom_help()
     
@@ -90,9 +93,9 @@ class SpoofToolCLI(cmd.Cmd):
             cmd_name = command[3:]
             func = getattr(self, command)
             if func.__doc__:
-                print(f"{cmd_name: <30}{func.__doc__.splitlines()[0]}")
+                print("{:<30}{}".format(cmd_name, func.__doc__.splitlines()[0]))
             else:
-                print(f"{cmd_name}\tNo description available.")
+                print("{}\tNo description available.".format(cmd_name))
 
 
 if __name__ == '__main__':

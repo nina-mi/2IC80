@@ -34,7 +34,6 @@ class SpoofToolCLI(cmd.Cmd):
         parser.add_argument('-m', '--manual', nargs='*', help='Manual input of IP addresses')
         parser.add_argument('-r', '--router', help='Gateway router')
         parser.add_argument('-i', '--iface', default='enp0s10', help='Network Interface (default: enp0s10)')
-        parser.add_argument('-a', '--auto', action='store_true', help='Automated IP adresses')
         
         try:
             args = parser.parse_args(line.split())
@@ -50,20 +49,9 @@ class SpoofToolCLI(cmd.Cmd):
             print("Gateway router: {}.".format(args.router))
         if args.iface:
             print("Network interface: {}".format(args.iface))
-        if args.auto:
-            arp_thread = threading.Thread(target=arp_main_automated) #todo integrate with iface and silent args
-            arp_thread.start()
-            return
 
         # Call the arp_main function with the parsed arguments
-
-        
-        
-        # Create a new thread that will run the arp_main function
-        arp_thread = threading.Thread(target=arp_main, args=(args.silent, args.manual, args.router, args.iface))
-        
-        # Start the new thread
-        arp_thread.start()
+        arp_main(args.silent, args.manual, args.router, args.iface)
 
     def do_dns_spoof(self, line):
         """Spoof DNS packets."""
@@ -121,22 +109,14 @@ class SpoofToolCLI(cmd.Cmd):
                 print("{}\tNo description available.".format(cmd_name))
 
 
-    def cmdloop(self, intro=None):
-        while True:
-            try:
-                super(SpoofToolCLI, self).cmdloop(intro="")
-                self.postloop()
-                break
-            except KeyboardInterrupt:
-                print("^C")
-                exit()
-
 
 if __name__ == '__main__':
     cli = SpoofToolCLI()
     
     def exit_handler():
-        cli.do_exit(None)
+        arp_spoofing.arp_spoofing = False
+        dns_spoofing.dns_spoofing = False
+        exit()
     atexit.register(exit_handler)
 
     cli.cmdloop()

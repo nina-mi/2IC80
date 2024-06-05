@@ -6,7 +6,7 @@ import scapy.all as scapy
 import os
 
 iface = None
-arp_spoofing = True
+arp_looping = True
 
 # MAC address function which will return
 # the mac_address of the provided ip address 
@@ -56,7 +56,7 @@ def arp_main(silent, manual, router, input_iface):
     iface = input_iface
     sent_packets_count = 0  # initializing the packet counter
 
-    while arp_spoofing:
+    while arp_looping:
         for victim_ip in victim_addresses:
             sent_packets_count += 2
             arp_spoof(victim_ip, router_ip)
@@ -78,7 +78,7 @@ sent_packets_count = 0
 
 def arp_main_automated(silent = False, iface_ = "enp0s10") :
     global victim_addresses, router_ip, iface, sent_packets_count
-    
+
     current_ip = scapy.get_if_addr(iface)
     subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
     router_ip = current_ip.rsplit('.', 1)[0] + '.1' #usually router is at subnet .1

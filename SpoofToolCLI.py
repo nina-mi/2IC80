@@ -4,8 +4,8 @@ import argparse
 import threading
 import atexit
 
-from arp_spoofing import *
-from dns_spoofing import *
+import arp_spoofing
+import dns_spoofing
 
 # I guess for now we will have individual functions for each command,
 #  but later we can just have one function tha does arp_spoofing, dns_spoofing and ssl stripping
@@ -51,14 +51,14 @@ class SpoofToolCLI(cmd.Cmd):
             print("Network interface: {}".format(args.iface))
 
         # Call the arp_main function with the parsed arguments
-        arp_main(args.silent, args.manual, args.router, args.iface)
+        arp_spoofing.arp_main(args.silent, args.manual, args.router, args.iface)
 
     def do_dns_spoof(self, line):
         """Spoof DNS packets."""
         parser = argparse.ArgumentParser(prog='dns_spoof', description='Spoof DNS packets.')
         print("dns spoofing started")
         # idk what arguments we might want
-        dns_main()
+        dns_spoofing.dns_main()
         # dns_main(args)
         pass
 
@@ -75,8 +75,8 @@ class SpoofToolCLI(cmd.Cmd):
     
     def do_exit(self, line):
         """Quit the program."""
-        arp_spoofing.arp_spoofing = False
-        dns_spoofing.dns_spoofing = False
+        arp_spoofing = False
+        dns_spoofing = False
         print("Goodbye!")
         return True
 
@@ -114,8 +114,8 @@ if __name__ == '__main__':
     cli = SpoofToolCLI()
     
     def exit_handler():
-        arp_spoofing.arp_spoofing = False
-        dns_spoofing.dns_spoofing = False
+        arp_spoofing.arp_looping = False
+        dns_spoofing.dns_looping = False
         exit()
     atexit.register(exit_handler)
 

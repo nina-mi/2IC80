@@ -111,9 +111,9 @@ class SpoofToolCLI(cmd.Cmd):
     def cmdloop(self, intro=None):
         while True:
             try:
-                super(SpoofToolCLI, self).cmdloop(intro="")
+                cmd.Cmd.cmdloop(self, intro=intro)
                 self.postloop()
-                break
+                break 
             except KeyboardInterrupt:
                 print("^C")
                 exit()

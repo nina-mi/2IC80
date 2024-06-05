@@ -102,7 +102,7 @@ class SpoofToolCLI(cmd.Cmd):
                 if func:
                     print(func.__doc__)
             except AttributeError:
-                print("No help ahhailable for '{}'".format(arg))
+                print("No help available for '{}'".format(arg))
         else:
             self.print_custom_help()
     

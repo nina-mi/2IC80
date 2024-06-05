@@ -108,7 +108,15 @@ class SpoofToolCLI(cmd.Cmd):
             else:
                 print("{}\tNo description available.".format(cmd_name))
 
-
+    def cmdloop(self, intro=None):
+        while True:
+            try:
+                super(SpoofToolCLI, self).cmdloop(intro="")
+                self.postloop()
+                break
+            except KeyboardInterrupt:
+                print("^C")
+                exit()
 
 if __name__ == '__main__':
     cli = SpoofToolCLI()

@@ -2,6 +2,7 @@ import cmd
 import os
 import argparse
 import threading
+import atexit
 
 from arp_spoofing import *
 from dns_spoofing import *
@@ -121,4 +122,10 @@ class SpoofToolCLI(cmd.Cmd):
 
 
 if __name__ == '__main__':
-    SpoofToolCLI().cmdloop()
+    cli = SpoofToolCLI()
+    
+    def exit_handler():
+        cli.do_exit(None)
+    atexit.register(exit_handler)
+
+    cli.cmdloop()

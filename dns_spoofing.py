@@ -14,6 +14,7 @@ def isDnsQuery(packet):
 #todo fix this, is just an idea
 def dns_spoof(packet):
     if not isDnsQuery(packet):
+        # call proxy method
         return
     print("dns lookup packet detected")
 

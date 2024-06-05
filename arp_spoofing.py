@@ -81,6 +81,7 @@ def arp_main_automated(silent = False, iface = "enp0s10") :
             victims.append(ip)
 
     victims.remove(current_ip)
+    print("Victims: ", str(victims))
 
     arp_main(silent, victims, router_ip, iface)
 

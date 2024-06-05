@@ -70,8 +70,16 @@ def arp_main_automated(silent = False, iface = "enp0s10") :
     current_ip = scapy.get_if_addr(iface)
     subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
     router_ip = current_ip.rsplit('.', 1)[0] + '.1' #usually router is at subnet .1
+    
+    victims = []
 
-    victims = [subnet + "." + str(i)  for i in range(2, 255)] #all other ips in subnet
+    for i in range(2,255) #all other ips in subnet:
+        ip = subnet + "." + str(i)
+        
+        rsp = scapy.sr1(scapy.IP(dst=ip)/scapy.ICMP(), timeout=1, verbose=0)
+        if rsp is not None:
+            victims.append(ip)
+            
     victims.remove(current_ip)
 
     arp_main(silent, victims, router_ip, iface)

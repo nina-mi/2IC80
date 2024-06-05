@@ -1,7 +1,10 @@
 import cmd
 import os
-from arp_spoofing import *
 import argparse
+import threading
+
+from arp_spoofing import *
+from dns_spoofing import *
 
 # I guess for now we will have individual functions for each command,
 #  but later we can just have one function tha does arp_spoofing, dns_spoofing and ssl stripping
@@ -46,13 +49,21 @@ class SpoofToolCLI(cmd.Cmd):
         if args.iface:
             print("Network interface: {}".format(args.iface))
         # Call the arp_main function with the parsed arguments
-        arp_main(silent=args.silent, manual=args.manual, router=args.router, input_iface=args.iface)
+
+        
+        
+        # Create a new thread that will run the arp_main function
+        arp_thread = threading.Thread(target=arp_main, args=(args.silent, args.manual, args.router, args.iface))
+        
+        # Start the new thread
+        arp_thread.start()
 
     def do_dns_spoof(self, line):
         """Spoof DNS packets."""
         parser = argparse.ArgumentParser(prog='dns_spoof', description='Spoof DNS packets.')
+        print("dns spoofing started")
         # idk what arguments we might want
-
+        dns_main()
         # dns_main(args)
         pass
 

@@ -4,7 +4,6 @@ import time
 import sys
 import scapy.all as scapy
 import os
-import net
 
 iface = None
 arp_spoofing = True

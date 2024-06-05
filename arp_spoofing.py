@@ -72,9 +72,7 @@ def arp_main_automated(silent = False, iface = "enp0s10") :
     router_ip = current_ip.rsplit('.', 1)[0] + '.1' #usually router is at subnet .1
 
     victims = [subnet + "." + str(i)  for i in range(2, 255)] #all other ips in subnet
-    print(str(victims))
     victims.remove(current_ip)
-    print(current_ip)
 
     arp_main(silent, victims, router_ip, iface)
 

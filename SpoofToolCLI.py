@@ -120,11 +120,11 @@ class SpoofToolCLI(cmd.Cmd):
             else:
                 print("{}\tNo description available.".format(cmd_name))
 
-    #to allow ctrl+c to exit the program
+
     def cmdloop(self, intro=None):
         while True:
             try:
-                super().cmdloop(intro="")
+                super(SpoofToolCLI, self).cmdloop(intro="")
                 self.postloop()
                 break
             except KeyboardInterrupt:

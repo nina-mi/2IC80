@@ -129,6 +129,7 @@ class SpoofToolCLI(cmd.Cmd):
                 break
             except KeyboardInterrupt:
                 print("^C")
+                exit()
 
 
 if __name__ == '__main__':

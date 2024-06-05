@@ -33,6 +33,7 @@ class SpoofToolCLI(cmd.Cmd):
         parser.add_argument('-m', '--manual', nargs='*', help='Manual input of IP addresses')
         parser.add_argument('-r', '--router', help='Gateway router')
         parser.add_argument('-i', '--iface', default='enp0s10', help='Network Interface (default: enp0s10)')
+        parser.add_argument('-a', '--auto', help='Automated IP adresses')
         
         try:
             args = parser.parse_args(line.split())
@@ -48,6 +49,10 @@ class SpoofToolCLI(cmd.Cmd):
             print("Gateway router: {}.".format(args.router))
         if args.iface:
             print("Network interface: {}".format(args.iface))
+        if args.auto:
+            arp_thread = threading.Thread(target=arp_main_automated) #todo integrate with iface and silent args
+            arp_thread.start()
+
         # Call the arp_main function with the parsed arguments
 
         
@@ -79,6 +84,8 @@ class SpoofToolCLI(cmd.Cmd):
         return True
     
     def do_exit(self, line):
+        arp_spoofing.arp_spoofing = False
+        dns_spoofing.dns_spoofing = False
         """Quit the program."""
         print("Goodbye!")
         return True
@@ -95,7 +102,7 @@ class SpoofToolCLI(cmd.Cmd):
                 if func:
                     print(func.__doc__)
             except AttributeError:
-                print("No help available for '{}'".format(arg))
+                print("No help ahhailable for '{}'".format(arg))
         else:
             self.print_custom_help()
     

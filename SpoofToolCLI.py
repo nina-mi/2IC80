@@ -33,7 +33,7 @@ class SpoofToolCLI(cmd.Cmd):
         parser.add_argument('-m', '--manual', nargs='*', help='Manual input of IP addresses')
         parser.add_argument('-r', '--router', help='Gateway router')
         parser.add_argument('-i', '--iface', default='enp0s10', help='Network Interface (default: enp0s10)')
-        parser.add_argument('-a', '--auto', help='Automated IP adresses')
+        parser.add_argument('-a', '--auto', action='store_true', help='Automated IP adresses')
         
         try:
             args = parser.parse_args(line.split())

@@ -86,9 +86,9 @@ class SpoofToolCLI(cmd.Cmd):
         return True
     
     def do_exit(self, line):
+        """Quit the program."""
         arp_spoofing.arp_spoofing = False
         dns_spoofing.dns_spoofing = False
-        """Quit the program."""
         print("Goodbye!")
         return True
 
@@ -119,6 +119,16 @@ class SpoofToolCLI(cmd.Cmd):
                 print("{:<30}{}".format(cmd_name, func.__doc__.splitlines()[0]))
             else:
                 print("{}\tNo description available.".format(cmd_name))
+
+    #to allow ctrl+c to exit the program
+    def cmdloop(self, intro=None):
+        while True:
+            try:
+                super().cmdloop(intro="")
+                self.postloop()
+                break
+            except KeyboardInterrupt:
+                print("^C")
 
 
 if __name__ == '__main__':

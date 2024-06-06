@@ -5,7 +5,8 @@ import arp_spoofing
 #THIS REQUIRES PORT FORWARDING TO BE DISABLED (our code is too slow to be faster than the real dns server)
 #sudo sysctl -w net.ipv4.ip_forward=0
 
-#currently seems to work on non cached, non ssl dns requests (eg nike.com, but not https://apple.com)
+#currently seems to work on unencrypted requests (eg nike.com, but not https://apple.com)
+#TODO SSL strip first?
 
 destination_ip = "142.250.179.174" #what to spoof the ip to (google.com)
 

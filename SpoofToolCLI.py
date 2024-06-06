@@ -64,9 +64,9 @@ class SpoofToolCLI(cmd.Cmd):
             sys.exit()
 
         # Call the arp_main function with the parsed arguments
-        threading.Thread(target=arp_spoofing.arp_main, args=(attacker_addr, args.manual, args.router, args.iface, args.silent),
-                             daemon=True).start()
-        
+        #threading.Thread(target=arp_spoofing.arp_main, args=(attacker_addr, args.manual, args.router, args.iface, args.silent),
+        #                     daemon=True).start()
+        arp_spoofing.arp_main(attacker_addr, args.manual, args.router, args.iface, args.silent)
         # if args.ssl:
         #     print("SSL mode enabled")
         #     time.sleep(5) # wait for arp

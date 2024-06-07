@@ -31,6 +31,9 @@ def proxy(packet):
     else :
         return
 
+    del packet[scapy.IP].chksum
+    packet = packet.__class__(bytes(packet))
+
     scapy.sendp(packet, verbose=0, iface=iface)
 
 #todo client doesnt seem to take this as answer even when cut off from internet

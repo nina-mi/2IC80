@@ -33,7 +33,7 @@ def proxy(packet):
     else :
         return
 
-    scapy.send(packet)#, verbose=0
+    scapy.send(packet, verbose=0)
 
 #todo client doesnt seem to take this as answer even when cut off from internet
 def dns_spoof(packet):

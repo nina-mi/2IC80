@@ -29,7 +29,9 @@ def enable_port_forwarding():
 
 def setup_proxy():
     dns_spoofing.arp_prep_automated()
-    arp_thread_ = threading.Thread(target=arp_thread, daemon=True).start()
+    arp_thread_ = threading.Thread(target=arp_thread)
+    arp_thread_.daemon = True
+    arp_thread_.start()
 
     setup_iptables()
     disable_port_forwarding()

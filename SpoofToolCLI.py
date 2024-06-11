@@ -60,12 +60,11 @@ class SpoofToolCLI(cmd.Cmd):
         # Call the arp_main function with the parsed arguments
         threading.Thread(target=arp_main, args=(attacker_addr, args.manual, args.router, args.iface, args.silent),
                              daemon=True).start()
-        
-        # if args.ssl:
-        #     print("SSL mode enabled")
-        #     time.sleep(5) # wait for arp
-        #     print("Starting SSL thread")
-        #     threading.Thread(target=ssl_main, args=(attacker_addr, args.iface), daemon=True).start()
+        if args.ssl:
+            print("SSL mode enabled")
+            time.sleep(5) # wait for arp
+            print("Starting SSL thread")
+            threading.Thread(target=ssl_main, args=(attacker_addr, args.iface), daemon=True).start()
 
     def do_dns_spoof(self, line):
         """Spoof DNS packets."""

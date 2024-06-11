@@ -8,6 +8,7 @@ import atexit
 
 import arp_spoofing
 import dns_spoofing
+import proxy
 
 import scapy.all as scapy
 
@@ -78,8 +79,9 @@ class SpoofToolCLI(cmd.Cmd):
         parser = argparse.ArgumentParser(prog='dns_spoof', description='Spoof DNS packets.')
         print("dns spoofing started")
         # idk what arguments we might want
-        dns_spoofing.dns_main()
-        # dns_main(args)
+        #dns_spoofing.dns_main()
+        proxy.setup_proxy()
+
         pass
 
 

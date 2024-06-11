@@ -13,9 +13,13 @@ import scapy.all as scapy
 
 #TODO method for keeping track of ssl stripped sessions/victim-server pairs/idk?
 
-#Whether this is a request from the server to switch to https
-def https_switch_request(scapy_packet):
-    #TODO
+#Check whether this is a redirect to https
+def https_switching_request(scapy_packet):
+    if scapy_packet.haslayer(scapy.HTTPResponse):
+        http_layer = scapy_packet.getlayer(scapy.HTTPResponse)
+        if http_layer.Location.contains('https://'):
+            if http_layer.Status_Code[0] == "3": #3xx status code is for redirection (wikipedia)
+                return True
     return False
 
 # client <--http--> us <--https--> server
@@ -32,7 +36,7 @@ def to_server(scapy_packet):
 def proxy_just_ssl(packet):
     scapy_packet = scapy.IP(packet.get_payload())
 
-    if https_switch_request(scapy_packet):
+    if https_switching_request(scapy_packet):
         print("a")
         #TODO transform to packet without switching request and send to client
 

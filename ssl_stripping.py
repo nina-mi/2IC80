@@ -13,6 +13,8 @@ import dns_spoofing
 
 
 #TODO code for keeping track of ssl stripped sessions/victim-server pairs/idk?
+#https://scapy.readthedocs.io/en/latest/api/scapy.layers.tls.html
+#https://scapy.readthedocs.io/en/latest/api/scapy.layers.tls.automaton_cli.html for sessions
 
 #Check whether this is a redirect to https
 def https_switching_request(scapy_packet):

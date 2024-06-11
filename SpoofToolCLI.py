@@ -77,6 +77,19 @@ class SpoofToolCLI(cmd.Cmd):
     def do_dns_spoof(self, line):
         """Spoof DNS packets."""
         parser = argparse.ArgumentParser(prog='dns_spoof', description='Spoof DNS packets.')
+        parser.add_argument('-s', '--silent', action='store_true', help='Silent ARP mode (see ARP help)')
+        parser.add_argument('-m', '--manual', nargs='*', help='Manual input of urls (default: all)')
+        parser.add_argument('-g', '--gateway', help='Gateway router (default: subnet.1)')
+        parser.add_argument('-i', '--iface', default='enp0s10', help='Network Interface (default: enp0s10)')
+        parser.add_argument('-l', '--ssl', action='store_true', help='SSL stripping mode')
+
+        try:
+            args = parser.parse_args(line.split())
+        except SystemExit:
+            return  # argparse tries to exit the application when it fails
+        
+        #TODO arguments
+
         print("dns spoofing started")
 
         dns_spoofing.dns_main()

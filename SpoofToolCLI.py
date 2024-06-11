@@ -78,9 +78,8 @@ class SpoofToolCLI(cmd.Cmd):
         """Spoof DNS packets."""
         parser = argparse.ArgumentParser(prog='dns_spoof', description='Spoof DNS packets.')
         print("dns spoofing started")
-        # idk what arguments we might want
-        #dns_spoofing.dns_main()
-        proxy.setup_proxy()
+
+        dns_spoofing.dns_main()
 
         pass
 

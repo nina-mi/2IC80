@@ -6,7 +6,7 @@ import threading
 
 import dns_spoofing
 import arp_spoofing
-
+import ssl_stripping
 #first upgrade pip to version 18 then upgrade to newest
 #sudo apt-get install build-essential python-dev libnetfilter-queue-dev
 #pip install NetfilterQueue
@@ -58,4 +58,5 @@ def proxy(packet):
         packet.drop()
         return
     
-    packet.accept() #allows to continue
+    ssl_stripping.proxy_strip_only(packet)
+    return

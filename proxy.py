@@ -7,9 +7,11 @@ import threading
 import dns_spoofing
 import arp_spoofing
 import ssl_stripping
-#first upgrade pip to version 18 then upgrade to newest
+
+#sudo pip install pip==18.0
+#sudo pip install --upgrade pip
 #sudo apt-get install build-essential python-dev libnetfilter-queue-dev
-#pip install NetfilterQueue
+#sudo pip install NetfilterQueue
 
 
 #For proxy-ing we rely on port forwarding and use netfilterqueue to intercept
@@ -17,9 +19,6 @@ import ssl_stripping
 
 def setup_iptables():
     os.system("sudo iptables -I FORWARD -j NFQUEUE --queue-num 0")
-
-def disable_port_forwarding():
-    os.system("sudo sysctl -w net.ipv4.ip_forward=0")
 
 def undo_iptables():
     os.system("sudo iptables --flush")
@@ -59,4 +58,5 @@ def proxy(packet):
         return
     
     ssl_stripping.proxy_strip_only(packet)
+    #packet.accept()
     return

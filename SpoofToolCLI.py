@@ -91,7 +91,9 @@ class SpoofToolCLI(cmd.Cmd):
             print("Network interface: {}".format(args.iface))
 
         print("DNS spoofing started")
-
+        
+        for url in args.manual:
+            url = url.replace("http://", "").replace("https://", "").replace("www.", "")
         dns_spoofing.urls = args.manual
         dns_spoofing.IFACE = args.iface
         proxy.setup_proxy()
@@ -160,8 +162,8 @@ def exit_handler():
             arp_spoofing.arp_thread.join()
 
         arp_spoofing.arp_scouting = False
-        if arp_spoofing.arp_scout_thread is not None:
-            arp_spoofing.arp_scout_thread.join()
+        if arp_spoofing.arp_scouting_thread is not None:
+            arp_spoofing.arp_scouting_thread.join()
         
         proxy.undo_iptables()
         if proxy.nfqueue is not None:

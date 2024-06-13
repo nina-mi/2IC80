@@ -116,7 +116,7 @@ def arp_prep_silent(input_iface, router_ip_):
     ATTACKER_MAC = scapy.get_if_hwaddr(IFACE)
 
     if not router_ip_:
-        subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
+        subnet = ATTACKER_IP.rsplit('.', 1)[0] #split rightmost number off
         router_ip = subnet + '.1' #usually router is at subnet .1
     else:
         router_ip = router_ip_

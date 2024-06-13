@@ -3,6 +3,8 @@ import scapy.all as scapy
 import dns_spoofing
 from scapy.layers.http import *
 
+#DOES NOT WORK, cant manage to get httpsrequest working, have been trying for days.
+
 #httprequest requires scapy 2.5 (which is supported by python 2.7)
 #sudo rm -rf /usr/local/lib/python2.7/dist-packages/scapy*
 #sudo -H pip install setuptools

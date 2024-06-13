@@ -6,7 +6,6 @@ import threading
 
 import dns_spoofing
 import arp_spoofing
-import ssl_stripping
 
 #sudo pip install pip==18.0
 #sudo pip install --upgrade pip
@@ -56,7 +55,6 @@ def proxy(packet):
         dns_spoofing.dns_spoof(scapy_packet)
         packet.drop()
         return
-    
-    ssl_stripping.proxy_strip_only(packet)
-    #packet.accept()
+
+    packet.accept()
     return

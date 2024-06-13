@@ -38,7 +38,7 @@ class SpoofToolCLI(cmd.Cmd):
     def do_arp_spoof(self, line):
         """Spoof ARP packets."""
         parser = argparse.ArgumentParser(prog='arp_spoof', description='Spoof ARP packets')
-        parser.add_argument('-q', '--silent', action='store_true', help='Silent mode (no active scanning for IP addresses)')
+        parser.add_argument('-s', '--silent', action='store_true', help='Silent mode (no active scanning for IP addresses)')
         parser.add_argument('-m', '--manual', nargs='*', help='Manual input of IP addresses (default is entire subnet). Also requires --router.')
         parser.add_argument('-r', '--router', help='Gateway router')
         parser.add_argument('-i', '--iface', default='enp0s10', help='Network Interface (default: enp0s10)')

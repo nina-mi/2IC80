@@ -39,10 +39,9 @@ class SpoofToolCLI(cmd.Cmd):
         """Spoof ARP packets."""
         parser = argparse.ArgumentParser(prog='arp_spoof', description='Spoof ARP packets')
         parser.add_argument('-q', '--silent', action='store_true', help='Silent mode (no active scanning for IP addresses)')
-        parser.add_argument('-m', '--manual', nargs='*', help='Manual input of IP addresses')
+        parser.add_argument('-m', '--manual', nargs='*', help='Manual input of IP addresses (default is entire subnet). Also requires --router.')
         parser.add_argument('-r', '--router', help='Gateway router')
         parser.add_argument('-i', '--iface', default='enp0s10', help='Network Interface (default: enp0s10)')
-        parser.add_argument('-s', '--ssl', action='store_true', help='SSL stripping mode')
         
         try:
             args = parser.parse_args(line.split())
@@ -59,26 +58,18 @@ class SpoofToolCLI(cmd.Cmd):
         if args.silent:
             print("Silent mode enabled.")
 
-        attacker_addr = []
-        try:
-            attacker_addr.append(scapy.get_if_addr(args.iface))
-            attacker_addr.append(scapy.get_if_hwaddr(args.iface))
-        except TypeError:
-            print("Attacker addresses not found, check interface")
-            sys.exit()
-
         # Start to ARP poison with the parsed arguments
         print("ARP spoofing started")
         global is_arp_running
         is_arp_running = True
 
-        if not args.manual and not args.silent:
+        if not args.manual and not args.silent: #auto setup (loud) :)
             arp_spoofing.arp_prep_automated(args.router, args.iface)
             arp_spoofing.arp_run()
-        elif args.manual and not args.silent: 
-            arp_spoofing.arp_prep(attacker_addr, args.manual, args.router, args.iface)
+        elif args.manual and not args.silent:  #manual (loud)
+            arp_spoofing.arp_prep(args.manual, args.router, args.iface)
             arp_spoofing.arp_run()
-        else: # silent mode
+        else: # silent mode (silent)
             print("todo") #TODO: implement silent mode
         return
         

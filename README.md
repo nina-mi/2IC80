@@ -5,7 +5,7 @@ This project also runs on Windows (for now), but you need scapy installed.
 python -m pip install scapy
 ```
 
-And also [npcap](https://npcap.com/#download) needs to be installed. 
+[npcap](https://npcap.com/#download) needs to be installed as well. 
 
 To start interacting with the SpoofToolCLI, you need to run this in terminal:
 

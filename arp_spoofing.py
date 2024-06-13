@@ -78,7 +78,7 @@ router_ip = None
 current_ip = None
 iface = None
 
-def arp_prep_automated(subnet, iface_ = "enp0s10") :
+def arp_prep_automated(router_ip_, iface_ = "enp0s10") :
     global victim_addresses, router_ip, iface, current_ip
     global IFACE, ATTACKER_MAC
 
@@ -87,10 +87,12 @@ def arp_prep_automated(subnet, iface_ = "enp0s10") :
     current_ip = scapy.get_if_addr(iface_)
     ATTACKER_MAC = scapy.get_if_hwaddr(iface_)
     
-    if not subnet:
-        subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
-    
-    router_ip = subnet + '.1' #usually router is at subnet .1
+    subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
+
+    if not router_ip_:
+        router_ip = subnet + '.1'
+    else:
+        router_ip = router_ip_
 
     for i in range(1,10) :  # ips in subnet, should be (1, 255)
         ip = subnet + "." + str(i)
@@ -107,11 +109,17 @@ def arp_prep_automated(subnet, iface_ = "enp0s10") :
 
 arp_scouting_thread = None
 arp_scouting = True
-def arp_prep_silent(input_iface):
-    global IFACE, ATTACKER_IP, ATTACKER_MAC, arp_scouting_thread
+def arp_prep_silent(input_iface, router_ip_):
+    global IFACE, ATTACKER_IP, ATTACKER_MAC, arp_scouting_thread, router_ip
     IFACE = input_iface
     ATTACKER_IP = scapy.get_if_addr(IFACE)
     ATTACKER_MAC = scapy.get_if_hwaddr(IFACE)
+
+    if not router_ip_:
+        subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
+        router_ip = subnet + '.1' #usually router is at subnet .1
+    else:
+        router_ip = router_ip_
 
     arp_scouting_thread = threading.Thread(target=arp_silent)
     arp_scouting_thread.daemon = True

@@ -70,7 +70,7 @@ class SpoofToolCLI(cmd.Cmd):
             arp_spoofing.arp_prep(args.manual, args.router, args.iface)
             arp_spoofing.arp_run()
         else: # silent mode (silent)
-            arp_spoofing.arp_prep_silent(args.iface)
+            arp_spoofing.arp_prep_silent(args.iface, args.router)
         return
         
 

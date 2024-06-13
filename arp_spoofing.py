@@ -15,8 +15,11 @@ arp_looping = False #set this to false to stop the thread
 def get_mac(ip):
     if ip == ATTACKER_IP :
         return ATTACKER_MAC
+    if ip in victim_addresses:
+        return victim_addresses[ip]
     if ip == router_ip and router_mac:
         return router_mac
+    
     # creating an ARP request to the ip address
     arp_request = scapy.ARP(pdst=ip)
     # setting the denstination MAC address to broadcast MAC

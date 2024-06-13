@@ -8,7 +8,7 @@ import os
 import time
 import threading
 
-arp_looping = True #set this to false to stop the thread
+arp_looping = False #set this to false to stop the thread
 
 # MAC address function which will return
 # the mac_address of the provided ip address 
@@ -108,7 +108,8 @@ def arp_tick():
 arp_thread = None
 def arp_run():
     #run arp_thread on a thread
-    global arp_thread
+    global arp_thread, arp_looping
+    arp_looping = True
     arp_thread = threading.Thread(target=arp_loop)
     arp_thread.daemon = True
     arp_thread.start()

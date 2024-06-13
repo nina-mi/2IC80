@@ -25,6 +25,9 @@ def enable_port_forwarding():
 
 nfqueue = None
 def setup_proxy():
+    if not arp_spoofing.arp_looping :
+        print("ARP Spoofing not running, not starting dns spoofing proxy")
+        return
     global nfqueue
     setup_iptables()
     enable_port_forwarding()

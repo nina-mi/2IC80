@@ -19,7 +19,7 @@ def isDnsResponse(packet):
     return packet.haslayer(scapy.DNS) and packet.getlayer(scapy.DNS).qr == 1
 
 def isTarget(packet): #checks whether dns url is in the list of urls to spoof
-    if len(urls) == 0 :
+    if not urls :
         return True
     qname = packet[scapy.DNSQR].qname
     if qname in urls:

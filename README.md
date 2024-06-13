@@ -30,3 +30,20 @@ Spoof ARP packets to intercept traffic in the network.
 #### Usage
 ```shell
 arp_spoof [-h] [-s] [-m [MANUAL [MANUAL ...]]] [-r ROUTER] [-i IFACE]
+```
+
+#### Options
+-h, --help:
+Show help message and exit.
+
+-q, --silent:
+Silent mode (no active scanning for IP addresses).
+
+-m [MANUAL [MANUAL ...]], --manual [MANUAL [MANUAL ...]]:
+Manual input of IP addresses (default is entire subnet). Also requires --router.
+
+-r ROUTER, --router ROUTER:
+Gateway router.
+
+-i IFACE, --iface IFACE:
+Network Interface (default: enp0s10).

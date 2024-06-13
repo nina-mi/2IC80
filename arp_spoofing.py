@@ -130,7 +130,7 @@ def arp_prep_silent(input_iface, router_ip_):
 
 def arp_silent():
     while arp_scouting:
-        scapy.sniff(prn=arp_scout_callback, iface=IFACE, count=1)
+        scapy.sniff(prn=arp_scout_callback, iface=IFACE, timeout=0.5)
 
 #When an arp request or answer is detected, spoof the arp table, also answer to override it.
 def arp_scout_callback(packet):

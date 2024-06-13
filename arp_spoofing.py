@@ -60,14 +60,16 @@ def arp_prep(manual, router, input_iface):
         print("No router address given, quitting...")
         sys.exit()
     
-    for ip in manual :
-        victim_addresses[ip] = get_mac(ip)
-    router_ip = router
-
     IFACE = input_iface
     ATTACKER_IP = scapy.get_if_addr(IFACE)
     ATTACKER_MAC = scapy.get_if_hwaddr(IFACE)
     print(ATTACKER_IP, ATTACKER_MAC)
+
+    for ip in manual :
+        victim_addresses[ip] = get_mac(ip)
+    router_ip = router
+
+    return
 
 
 #Automated code
@@ -85,7 +87,9 @@ def arp_prep_automated(subnet, iface_ = "enp0s10") :
     current_ip = scapy.get_if_addr(iface_)
     ATTACKER_MAC = scapy.get_if_hwaddr(iface_)
     
-    subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
+    if not subnet:
+        subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
+    
     router_ip = subnet + '.1' #usually router is at subnet .1
 
     for i in range(1,10) :  # ips in subnet, should be (1, 255)

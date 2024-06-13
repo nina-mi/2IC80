@@ -16,7 +16,7 @@ def get_mac(ip):
     if ip == ATTACKER_IP :
         return ATTACKER_MAC
     if ip == router_ip and router_mac:
-        return 
+        return router_mac
     # creating an ARP request to the ip address
     arp_request = scapy.ARP(pdst=ip)
     # setting the denstination MAC address to broadcast MAC

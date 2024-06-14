@@ -10,6 +10,8 @@ import threading
 
 arp_looping = False #set this to false to stop the thread
 
+ATTACKER_MAC = "ff:ff:ff:ff:ff:ff"
+
 # MAC address function which will return
 # the mac_address of the provided ip address 
 def get_mac(ip):

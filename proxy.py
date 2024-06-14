@@ -15,6 +15,7 @@ import arp_spoofing
 #before packets leave the machine
 
 def setup_iptables():
+    os.system("sudo iptables -D FORWARD -j ACCEPT")
     os.system("sudo iptables -I FORWARD -j NFQUEUE --queue-num 0")
 
 def undo_iptables():

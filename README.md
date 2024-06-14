@@ -59,6 +59,7 @@ Gateway router.
 -i IFACE, --iface IFACE:
 Network Interface (default: enp0s10).
 
+---
 
 ### `dns_spoof`
 
@@ -76,3 +77,21 @@ Manual input of URLs (default: all).
 
 -i IFACE, --iface IFACE:
 Network Interface (default: enp0s10).
+
+---
+
+### `clear`
+
+Clear the screen.
+
+---
+
+### `quit`
+
+Quit the program.
+
+---
+
+### `exit`
+
+Exit the program

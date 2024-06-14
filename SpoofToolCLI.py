@@ -114,7 +114,7 @@ class SpoofToolCLI(cmd.Cmd):
     def do_frame(self, line):   
         """Frame given mac to be the bad guy. In loud mode takes many IP's. In silent mode just the attacker ip"""
         parser = argparse.ArgumentParser(prog='frame', description='Frame given mac to be the bad guy.')
-        parser.add_argument('-m', '--mac', help='MAC address to frame.')
+        parser.add_argument('-m', '--mac', default='ff:ff:ff:ff:ff:ff', help='MAC address to frame.')
         parser.add_argument('-l', '--loud', action='store_true', help="Loud, takes many IP's (default=False)")
 
         try:
@@ -124,7 +124,7 @@ class SpoofToolCLI(cmd.Cmd):
         
         arp_spoofing.framed_mac = args.mac
 
-        if args.l:
+        if args.loud:
             print("Loud framing mode enabled.")
             print("Framing MAC address: {}".format(args.mac))
             arp_spoofing.loud_framing = True

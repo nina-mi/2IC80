@@ -3,4 +3,3 @@
 #sudo apt-get install build-essential python-dev libnetfilter-queue-dev
 #sudo pip install NetfilterQueue
 
-#sudo pip install scapy

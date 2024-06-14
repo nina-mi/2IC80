@@ -80,6 +80,7 @@ class SpoofToolCLI(cmd.Cmd):
         parser = argparse.ArgumentParser(prog='dns_spoof', description='Spoof DNS packets.')
         parser.add_argument('-m', '--manual', nargs='*', help='Manual input of urls (default: all)')
         parser.add_argument('-i', '--iface', default='enp0s10', help='Network Interface (default: enp0s10)')
+        parser.add_argument('-t', '--target', help='Target IP (default is google.com\'s)')
 
         try:
             args = parser.parse_args(line.split())
@@ -92,6 +93,9 @@ class SpoofToolCLI(cmd.Cmd):
                 url = url.replace("http://", "").replace("https://", "").replace("www.", "")
         if args.iface:
             print("Network interface: {}".format(args.iface))
+        if args.target:
+            print("Target IP: {}".format(args.target))
+            dns_spoofing.destination_ip = args.target
 
         print("DNS spoofing started")
     

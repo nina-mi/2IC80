@@ -54,7 +54,7 @@ def get_mac(ip):
 
  
 #send to target_ip that given mac is spoof_ip
-def arp_spoof(target_ip, spoof_ip, mac): 
+def arp_spoof(target_ip, spoof_ip, mac = None): 
     """"Create and send ARP packet"""
     if mac is None:
         mac = ATTACKER_MAC

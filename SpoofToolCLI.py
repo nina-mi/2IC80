@@ -66,9 +66,11 @@ class SpoofToolCLI(cmd.Cmd):
 
         if not args.manual and not args.silent: #auto setup (loud) :)
             arp_spoofing.arp_prep_automated(args.router, args.iface)
+            os.sleep(1)
             arp_spoofing.arp_run()
         elif args.manual and not args.silent:  #manual (loud)
             arp_spoofing.arp_prep(args.manual, args.router, args.iface)
+            os.sleep(1)
             arp_spoofing.arp_run()
         else: # silent mode (silent)
             arp_spoofing.arp_prep_silent(args.iface, args.router)
@@ -112,7 +114,7 @@ class SpoofToolCLI(cmd.Cmd):
         return
     
     def do_frame(self, line):   
-        """Frame given mac to be the bad guy. In loud mode takes many IP's. In silent mode just the attacker ip"""
+        """Only for silent ARP spoofing. Frame given mac to be the bad guy. In loud mode takes many IP's. In silent mode just the attacker ip"""
         parser = argparse.ArgumentParser(prog='frame', description='Frame given mac to be the bad guy.')
         parser.add_argument('-m', '--mac', default='ff:ff:ff:ff:ff:ff', help='MAC address to frame.')
         parser.add_argument('-l', '--loud', action='store_true', help="Loud, takes many IP's (default=False)")

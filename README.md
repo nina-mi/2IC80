@@ -68,17 +68,39 @@ Network Interface (default: enp0s10).
 dns_spoof [-h] [-m [MANUAL [MANUAL ...]]] [-i IFACE]
 ```
 
+---
+
+### `frame`
+Only for silent ARP spoofing. Frame given MAC to be the bad guy. In loud mode takes many IPs. In silent mode just the attacker IP
+#### Usage
+```shell
+frame [-h] [-m MAC] [-l]
+```
+
+
 #### Options
+
 -h, --help:
-Show help message and exit.
+        Show help message and exit.
 
--m [MANUAL [MANUAL ...]], --manual [MANUAL [MANUAL ...]]:
-Manual input of URLs (default: all).
+-m MAC, --mac MAC:
+        MAC address to frame (default: ff:ff:ff:ff:ff
+        ).
 
--i IFACE, --iface IFACE:
-Network Interface (default: enp0s10).
+-l, --loud:
+        Loud mode, takes many IPs (default: False).
 
 ---
+
+### `ssl_strip`
+
+Turns on SSL stripping (using Moxie sslstrip). Run ARP First. Does not work together with DNS spoofing.
+
+#### Usage
+```shell
+ssl_strip
+```
+--- 
 
 ### `clear`
 

